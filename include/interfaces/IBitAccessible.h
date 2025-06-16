@@ -4,6 +4,8 @@
 
 #ifndef IBITACCESSIBLE_H
 #define IBITACCESSIBLE_H
+#pragma once
+
 #include "IByteAccessible.h"
 #include <cstdint>
 #include <memory>

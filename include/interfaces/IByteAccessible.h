@@ -4,6 +4,7 @@
 
 #ifndef IBYTEACCESSIBLE_H
 #define IBYTEACCESSIBLE_H
+#pragma once
 #include <cstdint>
 
 class IByteAccessible {

@@ -4,6 +4,7 @@
 
 #ifndef IBYTEMANIPULABLE_H
 #define IBYTEMANIPULABLE_H
+#pragma once
 #include <cstdint>
 
 class IByteManipulable {

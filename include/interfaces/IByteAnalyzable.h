@@ -4,6 +4,7 @@
 
 #ifndef IBYTEANALYZABLE_H
 #define IBYTEANALYZABLE_H
+#pragma once
 #include <cstdint>
 #include <optional>
 #include <span>

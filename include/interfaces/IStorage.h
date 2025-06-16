@@ -4,8 +4,7 @@
 
 #ifndef ISTORAGE_H
 #define ISTORAGE_H
-#include <future>
-
+#pragma once
 #include "IBitAccessible.h"
 #include "IBitAnalyzable.h"
 #include "IBitCopyable.h"

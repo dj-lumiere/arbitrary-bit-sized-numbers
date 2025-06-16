@@ -4,6 +4,7 @@
 
 #ifndef IBYTECOPYABLE_H
 #define IBYTECOPYABLE_H
+#pragma once
 #include <cstdint>
 #include <span>
 

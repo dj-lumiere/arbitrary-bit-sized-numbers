@@ -4,25 +4,38 @@
 
 #ifndef IBITMANIPULABLE_H
 #define IBITMANIPULABLE_H
+#pragma once
 
 class IBitManipulable : public IBitAnalyzable, IBitAccessible, IBitCopyable {
 public:
     virtual ~IBitManipulable() = default;
+    
     // Shifting and rotation
+    
     virtual void ShiftLeft(size_t positions) = 0;
+    
     virtual void ShiftRight(size_t positions) = 0;
+    
     virtual void RotateLeft(size_t positions) = 0;
+    
     virtual void RotateRight(size_t positions) = 0;
 
     // Bit reversal
+    
     virtual void ReverseBits() = 0;
+    
     virtual void ReverseBytes() = 0;
 
     // Bitwise operations with other objects
+    
     virtual void BitwiseAnd(const IBitManipulable& other) = 0;
+    
     virtual void BitwiseOr(const IBitManipulable& other) = 0;
+    
     virtual void BitwiseXor(const IBitManipulable& other) = 0;
+    
     virtual void BitwiseNot() = 0;
+    
     virtual void Increment() {
         // Find a place where the trailing one ends,
         size_t trailingOnes = CountTrailingOnes();

@@ -4,6 +4,7 @@
 
 #ifndef IBITANALYZABLE_H
 #define IBITANALYZABLE_H
+#pragma once
 #include <optional>
 
 #include "IByteAccessible.h"
@@ -21,6 +22,7 @@ public:
         }
         return result;
     }
+    
     virtual size_t CountLeadingZeros() const {
         size_t totalBits = GetByteSize() * 8;
         for (size_t i = 0; i < GetByteSize(); ++i) {
@@ -31,6 +33,7 @@ public:
         }
         return totalBits;
     }
+    
     virtual size_t CountTrailingZeros() const {
         for (size_t i = GetByteSize(); i > 0; --i) {
             uint8_t byte = this->operator[](i - 1);
@@ -40,6 +43,7 @@ public:
         }
         return GetByteSize() * 8;
     }
+    
     virtual size_t CountLeadingOnes() const {
         for (size_t i = 0; i < GetByteSize(); ++i) {
             uint8_t byte = this->operator[](i);
@@ -60,6 +64,7 @@ public:
         }
         return GetByteSize() * 8;
     }
+    
     // Pattern searching
     virtual std::optional<size_t> FindFirstSet() const {
         for (size_t i = GetByteSize(); i > 0; --i) {
@@ -71,6 +76,7 @@ public:
         }
         return GetByteSize() * 8 - CountTrailingOnes();
     }
+    
     virtual std::optional<size_t> FindFirstClear() const {
         for (size_t i = GetByteSize(); i > 0; --i) {
             // Start from LSB
@@ -81,6 +87,7 @@ public:
         }
         return GetByteSize() * 8 - CountTrailingZeros();
     }
+    
     virtual std::optional<size_t> FindLastSet() const {
         for (size_t i = 0; i < GetByteSize(); ++i) {
             // Start from MSB
@@ -91,6 +98,7 @@ public:
         }
         return CountLeadingOnes() + 1;
     }
+    
     virtual std::optional<size_t> FindLastClear() const {
         for (size_t i = 0; i < GetByteSize(); ++i) {
             // Start from MSB
@@ -111,6 +119,7 @@ public:
         }
         return true;
     }
+    
     virtual bool IsAllOnes() const {
         for (size_t i = 0; i < GetByteSize(); ++i) {
             if (this->operator[](i) != 0xFF) {
@@ -119,13 +128,16 @@ public:
         }
         return true;
     }
+    
     virtual bool IsPowerOfTwo() const {
         size_t popCount = PopCount();
         return popCount == 1;
     }
+    
     virtual bool HasEvenParity() const {
         return !HasOddParity();
     }
+    
     virtual bool HasOddParity() const {
         return PopCount() & 1;
     }
