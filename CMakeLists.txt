@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(lumi_math)
+project(arbitrary_bitwidth_numbers)
 
 enable_testing()
 set(CMAKE_CXX_STANDARD 20)
@@ -29,31 +29,18 @@ set(CORE_HEADERS
         ${INCLUDE_DIR}/ArbitraryFloat.h
 )
 
-# Source files (including template implementations)
-set(CORE_SOURCES
-        src/ArbitrarySignedInt.cpp
-        src/ArbitraryUnsignedInt.cpp
-        src/ArbitraryFloat.cpp
-        src/storage/CPUStorage.cpp
-        include/interfaces/PortableBitUtils.cpp
-)
+include_directories(include)
 
 # Create the main library
-add_library(lumi_math ${CORE_SOURCES} ${INTERFACE_HEADERS} ${CORE_HEADERS})
-
-# Set include directories
-target_include_directories(lumi_math PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-)
+add_library(arbitrary_bitwidth_numbers INTERFACE ${CORE_SOURCES} ${INTERFACE_HEADERS} ${CORE_HEADERS})
 
 # Create test executable
-add_executable(lumi_math_tests test/signedinttest.cpp)
-target_link_libraries(lumi_math_tests lumi_math)
+add_executable(arbitrary_bitwidth_numbers_tests test/signedinttest.cpp)
+target_link_libraries(arbitrary_bitwidth_numbers_tests arbitrary_bitwidth_numbers)
 
 # Add test to CTest
-add_test(NAME SignedIntTest COMMAND lumi_math_tests)
+add_test(NAME SignedIntTest COMMAND signed_int_test)
 
 # Optional: Create an example/demo executable if you have a main.cpp
 # add_executable(lumi_math_demo src/main.cpp)
-# target_link_libraries(lumi_math_demo lumi_math)
+# target_link_libraries(lumi_math_demo arbitrary_bitwidth_numbers)
