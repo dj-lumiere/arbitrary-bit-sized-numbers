@@ -385,24 +385,7 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator bool() const {
 // == SIGNED INTEGER TYPE CONVERT == 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator char() const {
-    // ASI -> char?
-
-    // 일단 이거 여기에 있으면 컴파일 무조건 안 되니까
-    // 헤더를 만들어서 거기에 넣으세요라
-    // ㅇㅇ 구현도 거기에 옮기세요라 안 그럼 ᄛᅵ크 터짐
-    // 넣을 순 있죠 inline 먹여서 바로 그거다
-    // 어차피 템플릿 들어간 시점에서 쌩인라인인데 님이 ㅁ
-
-    // 애초에 뭐 완성된 거부터 없어서 지금 저 수많은 runtime_error를 보면
-    // 그거 헤더 만들어진건데
-    // ArbitrarySignedInt.h ㄱ
-    // ?
-    // 근데 거기에서 구현체 못 넣잖아
-    // 그리고 
-
-    // 일단 기본 헤더부터 터짐 (?)
-    // 안 되면 그냥 0번 바이트 그대로 땡겨도 안 됨?
-    // 근데 이거 ASI에서 char로 바꾸는거잖아    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator char() const
+    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator char() const
     throw std::runtime_error(
         "ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator char() const not implemented.");
 }
