@@ -8,6 +8,6 @@
 #include "ArbitrarySignedInt.h"
 #include "storage/CPUStorage.h"
 int main() {
-    ArbitrarySignedInt<8, 0, CPUStorage<2> > a = 127;
+    ArbitrarySignedInt<16, 0, CPUMemoryPlace> a = 127;
     std::cout << a;
 }
