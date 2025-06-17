@@ -32,9 +32,6 @@ public:
     
     /// Simple cloning for arithmetic temporaries
     virtual std::unique_ptr<IStorage> Clone() const = 0;
-    
-    /// Create similar storage with different size (for intermediate calculations)
-    virtual std::unique_ptr<IStorage> CreateSimilar(size_t byteSize) const = 0;
 };
 
 
