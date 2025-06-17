@@ -39,7 +39,7 @@ public:
 
     // Constructor from integral types
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
-    ArbitrarySignedInt(T value);
+    explicit ArbitrarySignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
     explicit ArbitrarySignedInt(const std::string& str, int base = 10);
@@ -145,6 +145,7 @@ public:
         return os << value.ToString();
     }
     friend std::istream& operator>>(std::istream& is, ArbitrarySignedInt& value) {
+        // TODO: Implement this
         throw std::runtime_error("Not implemented");
     }
 
@@ -229,7 +230,7 @@ public:
     ArbitrarySignedInt RotateLeft(size_t n) const;
     ArbitrarySignedInt RotateRight(size_t n) const;
     ArbitrarySignedInt ReverseBits() const;
-    ArbitrarySignedInt SwapBytes() const;
+    ArbitrarySignedInt ReverseBytes() const;
 
     // Sign and comparison utilities
     bool IsZero() const;
@@ -256,6 +257,9 @@ public:
 private:
     static constexpr size_t storage_bytes = (BitSize + BitOffset + 7) >> 3;
     using storage_type = typename MemoryPlace::template storage_type<storage_bytes>;
+
+    static_assert(std::derived_from<storage_type, IStorage>,
+        "MemoryPlace::storage_type must implement IStorage");
 
     storage_type storage_;
 
@@ -323,17 +327,41 @@ using Int256 = ArbitrarySignedInt<256, 0, MemoryPlace>;
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 template<typename T, typename>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ArbitrarySignedInt(T value) {
-    throw std::runtime_error("Not implemented");
+    static_assert(std::is_integral_v<T>, "T must be an integral type");
+    storage_.Clear();
+
+    // bit cast the T
+    using UnsignedT = std::make_unsigned_t<T>;
+    UnsignedT bits = std::bit_cast<UnsignedT>(value);
+
+    // truncate it
+    if constexpr (BitSize < sizeof(T) * 8) {
+        constexpr UnsignedT mask = (1ULL << BitSize) - 1;
+        bits &= mask;
+    }
+
+    // Use IByteCopyable interface for efficient storage operations
+    const uint8_t* byte_data = std::bit_cast<const uint8_t*>(&bits);
+    size_t byte_count = std::min(sizeof(bits), (BitSize + 7) / 8); // Round up to bytes
+
+    storage_.CopyFromBytes(byte_data,
+        sizeof(bits),
+        0, // srcStart
+        BitOffset / 8, // dstStart (convert bit offset to byte offset)
+        byte_count); // copyCount
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ArbitrarySignedInt(const std::string& str, int base) {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 template<typename T, typename>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator
 =(T value) {
-    throw std::runtime_error("Not implemented");
+    // Create temporary and move-assign
+    *this = ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>(value);
+    return *this;
 }
 
 // == TYPE CONVERTERS ==
@@ -364,22 +392,27 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator char() const {
     // 안 되면 그냥 0번 바이트 그대로 땡겨도 안 됨?
     // 근데 이거 ASI에서 char로 바꾸는거잖아
 
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator short() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator int() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator long() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator long long() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -387,22 +420,25 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator long long() const 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned char() const {
     return storage_[0];
-    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned short() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned int() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned long() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned long long() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -410,6 +446,7 @@ template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 template<size_t NewBitSize, size_t NewBitOffset, typename NewMemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset,
     NewMemoryPlace>() const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -417,6 +454,7 @@ template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 template<size_t UBitSize, size_t UBitOffset, typename UMemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UMemoryPlace>()
 const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -431,21 +469,25 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator-(
     const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator*(
     const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator/(
     const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator%(
     const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -495,24 +537,32 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator+=(
     const ArbitrarySignedInt& other) {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator-=(
     const ArbitrarySignedInt& other) {
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator*=(
-    const ArbitrarySignedInt& other) {
+const ArbitrarySignedInt& other) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator/=(
-    const ArbitrarySignedInt& other) {
+const ArbitrarySignedInt& other) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator%=(
-    const ArbitrarySignedInt& other) {
+const ArbitrarySignedInt& other) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 
 // == BITWISE OPERATIONS ==
@@ -603,26 +653,38 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& ArbitrarySignedInt<BitSize,
 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator==(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator!=(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator<(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator<=(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator>(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator>=(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::GetBit(size_t index) const {
-    storage_.GetBit(index);
+    return storage_.GetBit(index);
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 void ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SetBit(size_t index) {
@@ -646,7 +708,8 @@ bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::IsPositive() const {
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::Abs() const {
-    storage_.ClearBit(BitSize - 1);
+    this->storage_.ClearBit(BitSize - 1);
+    return *this;
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 int ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::Sign() const {
@@ -669,15 +732,23 @@ size_t ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::PopCount() const {
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::string ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ToString(int base) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::string ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ToBinaryString() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::string ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ToHexString() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::string ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::BitRepresentation() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::Max() {
@@ -694,166 +765,244 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, 
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> >
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::DivRem(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> >
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::DivEuclid(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::RemEuclid(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::Pow(
-    const ArbitrarySignedInt& exp) const {
+const ArbitrarySignedInt& exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 Pow(size_t exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedAdd(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedSub(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedMul(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedDiv(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedRem(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedNeg() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedAbs() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedPow(const ArbitrarySignedInt& exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingAdd(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingSub(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingMul(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 SaturatingAbs() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 SaturatingNeg() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingPow(
-    const ArbitrarySignedInt& exp) const {
+const ArbitrarySignedInt& exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingAdd(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingSub(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingMul(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingDiv(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingRem(
-    const ArbitrarySignedInt& other) const {
+const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 WrappingNeg() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 WrappingAbs() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::WrappingPow(
-    const ArbitrarySignedInt& exp) const {
+const ArbitrarySignedInt& exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 WrappingShl(size_t shift) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 WrappingShr(size_t shift) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingAdd(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingSub(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingMul(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingDiv(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingRem(const ArbitrarySignedInt& other) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingNeg() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingAbs() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingPow(const ArbitrarySignedInt& exp) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingShl(size_t shift) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>
 ::OverflowingShr(size_t shift) const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 size_t ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::CountOnes() const {
@@ -896,7 +1045,9 @@ ReverseBits() const {
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
-SwapBytes() const {
+ReverseBytes() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::IsZero() const {
@@ -905,89 +1056,131 @@ bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::IsZero() const {
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 template<typename T>
 std::optional<T> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::TryInto() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 NextPowerOfTwo() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedNextPowerOfTwo() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 PreviousPowerOfTwo() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> > ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::
 CheckedPreviousPowerOfTwo() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 bool ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::IsPowerOfTwo() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 ToBeBytes() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 ToLeBytes() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::
 ToNeBytes() const {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::FromBeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::FromLeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::FromNeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 void ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::Normalize() {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 void ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::SignExtend() {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> Abs(
-    const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& value) {
+const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& value) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> Gcd(const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> Lcm(const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> CarryingAdd(
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b, bool carry) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>, bool> BorrowingSub(
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b, bool borrow) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningLcm(
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningMul(
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& a,
     const ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+    // TODO: Implement this
+    throw std::runtime_error("Not implemented");
 }
 
 #endif //ARBITRARYSIGNEDINT_H

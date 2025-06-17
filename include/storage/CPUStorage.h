@@ -204,8 +204,6 @@ public:
         return std::make_unique<CPUStorage<Bytes> >(*this);
     }
 
-    std::unique_ptr<IStorage> CreateSimilar(size_t byteSize) const override;
-
     // ===== Additional Helper Methods =====
 
     // Direct access to underlying data for performance
@@ -612,12 +610,14 @@ void CPUStorage<Bytes>::CopyBitsFrom(const IBitCopyable& source, size_t srcStart
     // This requires the source to be able to provide bit data
     // In practice, you'd need a way to access the source's bits
     // For now, we'll leave this as a placeholder
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
 template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
     // Similar issue - we need a way to set bits in the destination
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -673,6 +673,7 @@ void CPUStorage<Bytes>::MoveBytesInternal(size_t srcStart, size_t byteCount, siz
 template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) {
     // Implementation depends on being able to access source data
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -680,6 +681,7 @@ template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount,
     size_t dstStart) const {
     // Similar issue - we need a way to access destination data
+    // TODO: Implement this
     throw std::runtime_error("Not implemented");
 }
 
@@ -784,7 +786,7 @@ void CPUStorage<Bytes>::RotateLeft(size_t positions) {
     }
 
     // Shift left
-    ShiftLeft(positions, false);
+    ShiftLeft(positions);
 
     // Set the wrapped bits
     for (size_t i = 0; i < positions; ++i) {
@@ -809,7 +811,7 @@ void CPUStorage<Bytes>::RotateRight(size_t positions) {
     }
 
     // Shift right
-    ShiftRight(positions, false);
+    ShiftRight(positions);
 
     // Set the wrapped bits
     for (size_t i = 0; i < positions; ++i) {
@@ -1002,11 +1004,6 @@ void CPUStorage<Bytes>::BytewiseNot() {
 }
 
 // ===== IStorage Hardware Abstraction =====
-template<size_t Bytes>
-std::unique_ptr<IStorage> CPUStorage<Bytes>::CreateSimilar(size_t byteSize) const {
-    // TODO: Implement this.
-    throw std::runtime_error("Not implemented");
-}
 
 template<size_t Bytes>
 const std::array<uint8_t, Bytes>& CPUStorage<Bytes>::GetData() const {
