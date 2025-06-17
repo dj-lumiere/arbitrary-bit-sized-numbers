@@ -280,10 +280,9 @@ private:
     static constexpr size_t total_bits = ExpBits + MantissaBits + 1;
     static constexpr size_t storage_bytes = (total_bits + 7) >> 3;
     using storage_type = typename MemoryPlace::template storage_type<storage_bytes>;
-    
-    static_assert(std::derived_from<storage_type, IStorage>,
-        "MemoryPlace::storage_type must implement IStorage");
-    
+
+    static_assert(std::derived_from<storage_type, IStorage>, "MemoryPlace::storage_type must implement IStorage");
+
     storage_type storage_;
 
     // Helper functions
@@ -295,261 +294,255 @@ private:
 // ===== GLOBAL MATHEMATICAL FUNCTIONS =====
 
 // Basic operations
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Abs(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Abs(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fabs(const ArbitraryFloat<E, M, MP>& x) {
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fabs(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
     return Abs(x);
 }
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmod(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmod(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Remainder(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Remainder(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, int> Remquo(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Remquo(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fma(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y,
-    const ArbitraryFloat<E, M, MP>& z);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmax(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmax(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmin(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fdim(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fdim(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
 // Exponential and logarithmic functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp2(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp10(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Expm1(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Expm1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log10(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log2(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log1p(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log1p(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Power functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Pow(const ArbitraryFloat<E, M, MP>& base, const ArbitraryFloat<E, M, MP>& exp);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Pow(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& base, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& exp);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sqrt(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cbrt(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cbrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Rsqrt(const ArbitraryFloat<E, M, MP>& x); // 1/sqrt(x)
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rsqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x); // 1/sqrt(x)
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Hypot(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Hypot(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y,
-    const ArbitraryFloat<E, M, MP>& z);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z);
 
 // Trigonometric functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sin(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cos(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tan(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Asin(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Acos(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atan(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atan2(const ArbitraryFloat<E, M, MP>& y, const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, ArbitraryFloat<E, M, MP> > Sincos(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Sincos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Hyperbolic functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sinh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cosh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tanh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Asinh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Acosh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atanh(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Error and gamma functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Erf(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Erfc(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erfc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tgamma(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Lgamma(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Nearest integer floating-point operations
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Ceil(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ceil(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Floor(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Floor(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Trunc(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Trunc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Round(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Round(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nearbyint(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nearbyint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Rint(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Floating-point manipulation functions
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, int> Frexp(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Frexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Ldexp(const ArbitraryFloat<E, M, MP>& x, int exp);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ldexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp);
 
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, ArbitraryFloat<E, M, MP> > Modf(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Modf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Scalbn(const ArbitraryFloat<E, M, MP>& x, int exp);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Scalbn(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp);
 
-template<size_t E, size_t M, typename MP>
-int Ilogb(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+int Ilogb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Logb(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Logb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nextafter(const ArbitraryFloat<E, M, MP>& from, const ArbitraryFloat<E, M, MP>& to);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nextafter(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nexttoward(const ArbitraryFloat<E, M, MP>& from, const ArbitraryFloat<E, M, MP>& to);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nexttoward(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Copysign(const ArbitraryFloat<E, M, MP>& mag, const ArbitraryFloat<E, M, MP>& sign);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Copysign(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& mag, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& sign);
 
 // Classification functions
-template<size_t E, size_t M, typename MP>
-bool IsFinite(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsFinite(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool IsInf(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsInf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool IsNaN(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsNaN(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool IsNormal(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsNormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool SignBit(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool SignBit(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool IsSubnormal(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsSubnormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-bool IsZero(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsZero(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Comparison functions (IEEE 754 compliant)
-template<size_t E, size_t M, typename MP>
-bool IsEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-bool IsLess(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsLess(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-bool IsLessEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsLessEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-bool IsGreater(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsGreater(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-bool IsGreaterEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsGreaterEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
-template<size_t E, size_t M, typename MP>
-bool IsUnordered(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsUnordered(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y);
 
 // Bessel functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> J0(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> J1(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Jn(int n, const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Jn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Y0(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Y1(const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Yn(int n, const ArbitraryFloat<E, M, MP>& x);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Yn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x);
 
 // Additional useful functions
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Degrees(const ArbitraryFloat<E, M, MP>& radians);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Degrees(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& radians);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Radians(const ArbitraryFloat<E, M, MP>& degrees);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Radians(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& degrees);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Lerp(const ArbitraryFloat<E, M, MP>& a,
-    const ArbitraryFloat<E, M, MP>& b,
-    const ArbitraryFloat<E, M, MP>& t);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lerp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& a, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& b, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& t);
 
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Clamp(const ArbitraryFloat<E, M, MP>& value,
-    const ArbitraryFloat<E, M, MP>& min_val,
-    const ArbitraryFloat<E, M, MP>& max_val);
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Clamp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& value, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& min_val, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& max_val);
 
 // Utility type aliases for common formats
 template<typename MemoryPlace>
@@ -575,1146 +568,1099 @@ using Float256 = ArbitraryFloat<19, 236, MemoryPlace>; // 256-bit float
 
 // Mixed precision operations
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Add(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b)
-    -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
+auto Add(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
 
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Mul(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b)
-    -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
+auto Mul(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
 
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Sub(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b)
-    -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
+auto Sub(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
 
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Div(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b)
-    -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
+auto Div(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>;
 
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(float value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(float value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(float value) not implemented.");
 }
 
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(double value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(double value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(double value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(long double value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(long double value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(long double value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<typename T, typename>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(T value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(T value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(T value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const std::string& str) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const std::string& str)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const std::string& str) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t BitSize, size_t BitOffset, typename IntMemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(
-    const ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace>& value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace>& value) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace>& value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace>& value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t BitSize, size_t BitOffset, typename IntMemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace>& value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace>& value) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace>& value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ArbitraryFloat(const ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace>& value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<typename T, typename>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator
-=(T value) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator=(T value) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator=(T value)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator=(T value) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator float() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator float() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator float() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator double() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator double() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator double() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long double() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long double() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long double() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long long() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long long() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator long long() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned long long() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned long long() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned long long() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator int() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator int() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator int() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned int() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned int() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned int() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator short() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator short() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator short() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned short() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned short() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned short() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator char() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator char() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator char() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned char() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned char() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator unsigned char() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator bool() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator bool() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator bool() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t NewExp, size_t NewMant, typename NewMemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator ArbitraryFloat<NewExp, NewMant, NewMemoryPlace>() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator ArbitraryFloat<NewExp, NewMant, NewMemoryPlace>() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator ArbitraryFloat<NewExp, NewMant, NewMemoryPlace>() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator
-+() const {
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+() const {
     return this;
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator
--() const {
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-() const {
     return this.SetSignBit(!this.GetSignBit());
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+(
-    const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+(const ArbitraryFloat& other) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+(const ArbitraryFloat& other) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-(
-    const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-(const ArbitraryFloat& other) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-(const ArbitraryFloat& other) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*(
-    const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*(const ArbitraryFloat& other) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*(const ArbitraryFloat& other) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/(
-    const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/(const ArbitraryFloat& other) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/(const ArbitraryFloat& other) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+=(
-    const ArbitraryFloat& other) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+=(const ArbitraryFloat& other) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+=(const ArbitraryFloat& other)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator+=(const ArbitraryFloat& other) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-=(
-    const ArbitraryFloat& other) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-=(const ArbitraryFloat& other) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-=(const ArbitraryFloat& other)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator-=(const ArbitraryFloat& other) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*=(
-    const ArbitraryFloat& other) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*=(const ArbitraryFloat& other) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*=(const ArbitraryFloat& other)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator*=(const ArbitraryFloat& other) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/=(
-    const ArbitraryFloat& other) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/=(const ArbitraryFloat& other) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/=(const ArbitraryFloat& other)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator/=(const ArbitraryFloat& other) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator==(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator==(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator==(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator!=(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator!=(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator!=(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<=(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<=(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator<=(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>=(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>=(const ArbitraryFloat& other) const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::operator>=(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsFinite() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsFinite() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsFinite() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsInf() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsInf() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsInf() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNaN() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNaN() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNaN() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNormal() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNormal() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNormal() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSubnormal() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSubnormal() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSubnormal() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsZero() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsZero() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsZero() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignBit() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignBit() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignBit() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsPositive() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsPositive() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsPositive() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNegative() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNegative() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsNegative() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 int ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sign() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement int ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sign() const
+    throw std::runtime_error("int ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sign() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignBit() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignBit() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignBit() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SetSignBit(bool sign) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SetSignBit(bool sign)
+    throw std::runtime_error("void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SetSignBit(bool sign) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t ExpSize, size_t ExpOffset, typename ExpMemoryPlace>
-ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-GetRawExponent() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetRawExponent() const {
+    // TODO: Implement ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetRawExponent() const
+    throw std::runtime_error("ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetRawExponent() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t ExpSize, size_t ExpOffset, typename ExpMemoryPlace>
-ArbitrarySignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-GetExponent() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitrarySignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetExponent() const {
+    // TODO: Implement ArbitrarySignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetExponent() const
+    throw std::runtime_error("ArbitrarySignedInt<ExpSize, ExpOffset, ExpMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetExponent() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t MantSize, size_t MantOffset, typename MantMemoryPlace>
-ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-GetMantissa() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetMantissa() const {
+    // TODO: Implement ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetMantissa() const
+    throw std::runtime_error("ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetMantissa() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t MantSize, size_t MantOffset, typename MantMemoryPlace>
-ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-GetSignificand() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignificand() const {
+    // TODO: Implement ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignificand() const
+    throw std::runtime_error("ArbitraryUnsignedInt<MantSize, MantOffset, MantMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::GetSignificand() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToString() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToString() const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToString() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::BitRepresentation() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::BitRepresentation() const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::BitRepresentation() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToDecimalString() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToDecimalString() const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToDecimalString() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToHexString() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToHexString() const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToHexString() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString() const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString(int precision) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString(int precision) const
+    throw std::runtime_error("std::string ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToScientificString(int precision) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t BitSize, size_t BitOffset, typename IntMemoryPlace>
-ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-ToInt() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToInt() const {
+    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToInt() const
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToInt() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 template<size_t BitSize, size_t BitOffset, typename IntMemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-ToUInt() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToUInt() const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToUInt() const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, IntMemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToUInt() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ceil() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ceil() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ceil() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Floor() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Floor() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Floor() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Trunc() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Trunc() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Trunc() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Round() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Round() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Round() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-RoundEven() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::RoundEven() const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::RoundEven() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::RoundEven() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Abs() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Abs() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Abs() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cbrt() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cbrt() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cbrt() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp2() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp2() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp2() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp10() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp10() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Exp10() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Expm1() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Expm1() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Expm1() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log1p() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log1p() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log1p() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sin() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sin() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sin() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cos() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cos() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cos() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tan() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tan() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tan() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asin() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asin() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asin() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acos() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acos() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acos() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atan() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atan() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atan() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sinh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sinh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sinh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cosh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cosh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Cosh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tanh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tanh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tanh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asinh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asinh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Asinh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acosh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acosh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Acosh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atanh() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atanh() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Atanh() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextUp() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextUp() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextUp() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-NextDown() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextDown() const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextDown() const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextDown() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextAfter(
-    const ArbitraryFloat& direction) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextAfter(const ArbitraryFloat& direction) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextAfter(const ArbitraryFloat& direction) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NextAfter(const ArbitraryFloat& direction) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-Scalbn(int exp) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Scalbn(int exp) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Scalbn(int exp) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Scalbn(int exp) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-Ldexp(int exp) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ldexp(int exp) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ldexp(int exp) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ldexp(int exp) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-CheckedAdd(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedAdd(const ArbitraryFloat& other) const {
+    // TODO: Implement std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedAdd(const ArbitraryFloat& other) const
+    throw std::runtime_error("std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedAdd(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-CheckedSub(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedSub(const ArbitraryFloat& other) const {
+    // TODO: Implement std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedSub(const ArbitraryFloat& other) const
+    throw std::runtime_error("std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedSub(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-CheckedMul(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedMul(const ArbitraryFloat& other) const {
+    // TODO: Implement std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedMul(const ArbitraryFloat& other) const
+    throw std::runtime_error("std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedMul(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-CheckedDiv(const ArbitraryFloat& other) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedDiv(const ArbitraryFloat& other) const {
+    // TODO: Implement std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedDiv(const ArbitraryFloat& other) const
+    throw std::runtime_error("std::optional<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::CheckedDiv(const ArbitraryFloat& other) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fma(
-    const ArbitraryFloat& y, const ArbitraryFloat& z) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fma(const ArbitraryFloat& y, const ArbitraryFloat& z) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fma(const ArbitraryFloat& y, const ArbitraryFloat& z) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fma(const ArbitraryFloat& y, const ArbitraryFloat& z) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fms(
-    const ArbitraryFloat& y, const ArbitraryFloat& z) const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fms(const ArbitraryFloat& y, const ArbitraryFloat& z) const {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fms(const ArbitraryFloat& y, const ArbitraryFloat& z) const
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Fms(const ArbitraryFloat& y, const ArbitraryFloat& z) const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Infinity() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Infinity()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Infinity() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::
-NegativeInfinity() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeInfinity() {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeInfinity()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeInfinity() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NaN() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NaN()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NaN() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::QuietNaN() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::QuietNaN()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::QuietNaN() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignalingNaN() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignalingNaN()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::SignalingNaN() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Zero() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Zero()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Zero() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeZero() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeZero()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::NegativeZero() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::One() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::One()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::One() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinValue() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinValue()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinValue() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MaxValue() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MaxValue()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MaxValue() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Epsilon() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Epsilon()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Epsilon() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinSubnormal() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinSubnormal()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::MinSubnormal() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Pi() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Pi()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Pi() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::E() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::E()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::E() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2E() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2E()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log2E() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10E() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10E()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Log10E() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln2() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln2()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln2() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln10() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln10()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Ln10() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt2() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt2()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt2() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt1_2() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt1_2()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Sqrt1_2() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tau() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tau()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Tau() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::InvPi() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::InvPi()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::InvPi() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Inv2Pi() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Inv2Pi()
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Inv2Pi() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToBeBytes() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToBeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToBeBytes() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToLeBytes() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToLeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToLeBytes() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToNeBytes() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToNeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::ToNeBytes() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromBeBytes(
-    const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromBeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromBeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromBeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromLeBytes(
-    const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromLeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromLeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromLeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromNeBytes(
-    const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromNeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromNeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromNeBytes(const std::array<uint8_t, ((ExpBits + MantissaBits + 1 + 7) >> 3)>& bytes) not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Normalize() {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Normalize()
+    throw std::runtime_error("void ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::Normalize() not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
 bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSpecialValue() const {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSpecialValue() const
+    throw std::runtime_error("bool ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::IsSpecialValue() const not implemented.");
 }
 template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
-ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromComponents(
-    bool sign, uint64_t exponent, uint64_t mantissa) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Abs(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmod(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Remainder(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, int> Remquo(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fma(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y,
-    const ArbitraryFloat<E, M, MP>& z) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmax(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fmin(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Fdim(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp2(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Exp10(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Expm1(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log10(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log2(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Log1p(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Pow(const ArbitraryFloat<E, M, MP>& base, const ArbitraryFloat<E, M, MP>& exp) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sqrt(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cbrt(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Rsqrt(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Hypot(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Hypot(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y,
-    const ArbitraryFloat<E, M, MP>& z) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sin(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cos(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tan(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Asin(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Acos(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atan(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atan2(const ArbitraryFloat<E, M, MP>& y, const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, ArbitraryFloat<E, M, MP> > Sincos(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Sinh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Cosh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tanh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Asinh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Acosh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Atanh(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Erf(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Erfc(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Tgamma(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Lgamma(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Ceil(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Floor(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Trunc(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Round(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nearbyint(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Rint(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, int> Frexp(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Ldexp(const ArbitraryFloat<E, M, MP>& x, int exp) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-std::pair<ArbitraryFloat<E, M, MP>, ArbitraryFloat<E, M, MP> > Modf(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Scalbn(const ArbitraryFloat<E, M, MP>& x, int exp) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-int Ilogb(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Logb(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nextafter(const ArbitraryFloat<E, M, MP>& from, const ArbitraryFloat<E, M, MP>& to) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Nexttoward(const ArbitraryFloat<E, M, MP>& from, const ArbitraryFloat<E, M, MP>& to) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Copysign(const ArbitraryFloat<E, M, MP>& mag, const ArbitraryFloat<E, M, MP>& sign) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsFinite(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsInf(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsNaN(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsNormal(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool SignBit(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsSubnormal(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsZero(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsLess(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsLessEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsGreater(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsGreaterEqual(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-bool IsUnordered(const ArbitraryFloat<E, M, MP>& x, const ArbitraryFloat<E, M, MP>& y) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> J0(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> J1(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Jn(int n, const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Y0(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Y1(const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Yn(int n, const ArbitraryFloat<E, M, MP>& x) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Degrees(const ArbitraryFloat<E, M, MP>& radians) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Radians(const ArbitraryFloat<E, M, MP>& degrees) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Lerp(const ArbitraryFloat<E, M, MP>& a, const ArbitraryFloat<E, M, MP>& b,
-    const ArbitraryFloat<E, M, MP>& t) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
-}
-template<size_t E, size_t M, typename MP>
-ArbitraryFloat<E, M, MP> Clamp(const ArbitraryFloat<E, M, MP>& value, const ArbitraryFloat<E, M, MP>& min_val,
-    const ArbitraryFloat<E, M, MP>& max_val) {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromComponents(bool sign, uint64_t exponent, uint64_t mantissa) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromComponents(bool sign, uint64_t exponent, uint64_t mantissa)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>::FromComponents(bool sign, uint64_t exponent, uint64_t mantissa) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Abs(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Abs(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Abs(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmod(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmod(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmod(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Remainder(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Remainder(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Remainder(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Remquo(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Remquo(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Remquo(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmax(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmax(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmax(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fmin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fdim(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fdim(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Fdim(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Exp10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Expm1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Expm1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Expm1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log10(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log1p(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log1p(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Log1p(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Pow(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& base, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& exp) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Pow(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& base, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& exp)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Pow(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& base, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& exp) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cbrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cbrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cbrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rsqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rsqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rsqrt(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Hypot(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& z) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asin(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atan2(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Sincos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Sincos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Sincos(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Sinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Cosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Asinh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Acosh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Atanh(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erfc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erfc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Erfc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Tgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lgamma(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ceil(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ceil(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ceil(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Floor(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Floor(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Floor(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Trunc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Trunc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Trunc(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Round(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Round(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Round(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nearbyint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nearbyint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nearbyint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Rint(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Frexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Frexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, int> Frexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ldexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ldexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Ldexp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Modf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Modf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("std::pair<ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>, ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> > Modf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Scalbn(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Scalbn(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Scalbn(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, int exp) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+int Ilogb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement int Ilogb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("int Ilogb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Logb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Logb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Logb(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nextafter(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nextafter(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nextafter(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nexttoward(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nexttoward(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Nexttoward(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& from, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& to) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Copysign(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& mag, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& sign) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Copysign(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& mag, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& sign)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Copysign(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& mag, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& sign) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsFinite(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsFinite(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsFinite(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsInf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsInf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsInf(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsNaN(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsNaN(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsNaN(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsNormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsNormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsNormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool SignBit(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool SignBit(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool SignBit(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsSubnormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsSubnormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsSubnormal(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsZero(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement bool IsZero(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("bool IsZero(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsLess(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsLess(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsLess(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsLessEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsLessEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsLessEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsGreater(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsGreater(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsGreater(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsGreaterEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsGreaterEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsGreaterEqual(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+bool IsUnordered(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) {
+    // TODO: Implement bool IsUnordered(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y)
+    throw std::runtime_error("bool IsUnordered(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& y) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> J1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Jn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Jn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Jn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y0(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Y1(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Yn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Yn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Yn(int n, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& x) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Degrees(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& radians) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Degrees(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& radians)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Degrees(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& radians) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Radians(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& degrees) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Radians(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& degrees)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Radians(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& degrees) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lerp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& a, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& b, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& t) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lerp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& a, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& b, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& t)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Lerp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& a, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& b, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& t) not implemented.");
+}
+template<size_t ExpBits, size_t MantissaBits, typename MemoryPlace>
+ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Clamp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& value, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& min_val, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& max_val) {
+    // TODO: Implement ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Clamp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& value, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& min_val, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& max_val)
+    throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace> Clamp(const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& value, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& min_val, const ArbitraryFloat<ExpBits, MantissaBits, MemoryPlace>& max_val) not implemented.");
 }
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Add(const ArbitraryFloat<E1, M1, MP>& a,
-    const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+auto Add(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
+    // TODO: Implement auto Add(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>
+    throw std::runtime_error("auto Add(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> not implemented.");
 }
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Mul(const ArbitraryFloat<E1, M1, MP>& a,
-    const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+auto Mul(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
+    // TODO: Implement auto Mul(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>
+    throw std::runtime_error("auto Mul(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> not implemented.");
 }
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Sub(const ArbitraryFloat<E1, M1, MP>& a,
-    const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+auto Sub(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
+    // TODO: Implement auto Sub(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>
+    throw std::runtime_error("auto Sub(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> not implemented.");
 }
 template<size_t E1, size_t M1, size_t E2, size_t M2, typename MP>
-auto Div(const ArbitraryFloat<E1, M1, MP>& a,
-    const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+auto Div(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> {
+    // TODO: Implement auto Div(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP>
+    throw std::runtime_error("auto Div(const ArbitraryFloat<E1, M1, MP>& a, const ArbitraryFloat<E2, M2, MP>& b) -> ArbitraryFloat<std::max(E1, E2), std::max(M1, M2), MP> not implemented.");
 }
 
 #endif //ARBITRARYFLOAT_H
