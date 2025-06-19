@@ -4,7 +4,6 @@
 
 #ifndef ARBITRARYSIGNEDINT_H
 #define ARBITRARYSIGNEDINT_H
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -23,13 +22,12 @@ template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
  * including arithmetic, bitwise, comparison, utility, and conversion functions.
  * The size and memory layout of the integer are configurable via template parameters.
  *
- * @tparam BitSize The number of bits used to store the integer, must be greater than 1.
- * @tparam BitOffset The bit offset for memory alignment, must be in the range [0, 7].
+ * @tparam BitSize The number of bits used to store the integer. It must be greater than 1.
+ * @tparam BitOffset The bit offset for memory alignment.
  * @tparam MemoryPlace The underlying storage mechanism.
  */
 class ArbitrarySignedInt {
     static_assert(BitSize > 1, "Signed int size must be greater than 1");
-    static_assert(BitOffset < 8, "Bit offset must be in range [0,7]");
 
 public:
     // Constructors
@@ -39,7 +37,7 @@ public:
 
     // Constructor from integral types
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
-    explicit ArbitrarySignedInt(T value);
+    ArbitrarySignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
     explicit ArbitrarySignedInt(const std::string& str,
@@ -350,7 +348,8 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::ArbitrarySignedInt(T value)
 
     // Use IByteCopyable interface for efficient storage operations
     const uint8_t* byte_data = std::bit_cast<const uint8_t*>(&bits);
-    size_t byte_count = std::min(sizeof(bits), (BitSize + 7) / 8); // Round up to bytes
+    // Round up to bytes
+    size_t byte_count = std::min(sizeof(bits), (BitSize + 7) / 8); 
 
     storage_.CopyFromBytes(byte_data,
         sizeof(bits),
@@ -467,8 +466,9 @@ ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator ArbitraryUnsignedI
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<
     BitSize, BitOffset, MemoryPlace>::operator+(const ArbitrarySignedInt& other) const {
-    auto result = this->operator+(other);
-    return result;
+    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator+(const ArbitrarySignedInt& other) const
+    throw std::runtime_error(
+        "ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace>::operator+(const ArbitrarySignedInt& other) const not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
 ArbitrarySignedInt<BitSize, BitOffset, MemoryPlace> ArbitrarySignedInt<
