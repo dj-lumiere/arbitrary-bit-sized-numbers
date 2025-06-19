@@ -73,6 +73,16 @@ public:
             ClearBit(trailingZeros);
         }
     }
+
+    virtual void OffsetAdd(const IBitManipulable& other,
+        size_t srcPosStart,
+        size_t srcPosCount,
+        size_t dstPosStart);
+
+    virtual void OffsetSub(const IBitManipulable& other,
+        size_t srcPosStart,
+        size_t srcPosCount,
+        size_t dstPosStart);
 };
 
 #endif //IBITMANIPULABLE_H
