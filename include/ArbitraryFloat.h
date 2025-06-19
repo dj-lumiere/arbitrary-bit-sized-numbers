@@ -76,10 +76,6 @@ public:
     explicit operator ArbitraryFloat<NewExp, NewMant, NewMemoryPlace>() const;
 
     // ===== UNARY OPERATORS =====
-    /**
-     * 
-     * @return 
-     */
     ArbitraryFloat operator+() const; // unary plus
     ArbitraryFloat operator-() const; // unary minus
 
