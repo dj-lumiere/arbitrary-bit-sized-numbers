@@ -222,6 +222,16 @@ public:
     bool operator==(const CPUStorage<Bytes>& other) const;
 
     bool operator!=(const CPUStorage<Bytes>& other) const;
+    
+    void OffsetAdd(const IBitManipulable& other,
+        size_t srcPosStart,
+        size_t srcPosCount,
+        size_t dstPosStart) override;
+    
+    void OffsetSub(const IBitManipulable& other,
+        size_t srcPosStart,
+        size_t srcPosCount,
+        size_t dstPosStart) override;
 
     // Stream output for debugging
     friend std::ostream& operator<<(std::ostream& os, const CPUStorage<Bytes>& storage) {
@@ -610,15 +620,15 @@ void CPUStorage<Bytes>::CopyBitsFrom(const IBitCopyable& source, size_t srcStart
     // This requires the source to be able to provide bit data
     // In practice, you'd need a way to access the source's bits
     // For now, we'll leave this as a placeholder
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart)
+    throw std::runtime_error("void CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart) not implemented");
 }
 
 template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
     // Similar issue - we need a way to set bits in the destination
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const
+    throw std::runtime_error("void CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const not implemented");
 }
 
 template<size_t Bytes>
@@ -673,16 +683,16 @@ void CPUStorage<Bytes>::MoveBytesInternal(size_t srcStart, size_t byteCount, siz
 template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) {
     // Implementation depends on being able to access source data
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart)
+    throw std::runtime_error("void CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) not implemented");
 }
 
 template<size_t Bytes>
 void CPUStorage<Bytes>::CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount,
     size_t dstStart) const {
     // Similar issue - we need a way to access destination data
-    // TODO: Implement this
-    throw std::runtime_error("Not implemented");
+    // TODO: Implement void CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount, size_t dstStart) const
+    throw std::runtime_error("void CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount, size_t dstStart) const not implemented");
 }
 
 template<size_t Bytes>
@@ -1042,6 +1052,21 @@ bool CPUStorage<Bytes>::operator==(const CPUStorage<Bytes>& other) const {
 template<size_t Bytes>
 bool CPUStorage<Bytes>::operator!=(const CPUStorage<Bytes>& other) const {
     return data_ != other.data_;
+}
+
+template<size_t Bytes>
+void CPUStorage<Bytes>::OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) {
+    // TODO: Implement void OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) 
+    throw std::runtime_error("void OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) not implemented");
+}
+
+template<size_t Bytes>
+void CPUStorage<Bytes>::OffsetSub(const IBitManipulable& other,
+    size_t srcPosStart,
+    size_t srcPosCount,
+    size_t dstPosStart) {
+    // TODO: Implement void OffsetSub(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) 
+    throw std::runtime_error("void OffsetSub(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) not implemented");
 }
 
 template<size_t Bytes>
