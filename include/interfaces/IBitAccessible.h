@@ -23,6 +23,17 @@ public:
     virtual void SetBit(const size_t bitIndex) {
         (*this)[bitIndex >> 3] |= (1 << (bitIndex & 7));
     }
+    
+    virtual void SetBit(const size_t bitIndex,
+        const bool value) {
+        if (value) {
+            SetBit(bitIndex);
+        }
+        else {
+            ClearBit(bitIndex);
+        }
+    }
+    
     virtual void ClearBit(const size_t bitIndex) {
         (*this)[bitIndex >> 3] &= ~(1 << (bitIndex & 7));
     }
