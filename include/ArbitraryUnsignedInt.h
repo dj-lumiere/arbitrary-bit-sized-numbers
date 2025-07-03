@@ -462,38 +462,23 @@ ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedI
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator*(const ArbitraryUnsignedInt& other) {
     ArbitraryUnsignedInt result;
-    result.storage_.ClearAllBits();
+    ArbitraryUnsignedInt multiplicand = *this;
+    ArbitraryUnsignedInt multiplier = other;
 
-    // Handle zero cases early
-    if (this->storage_.IsAllZeros() || other.storage_.IsAllZeros()) {
+    // Handle zero cases
+    if (multiplicand.IsZero() || multiplier.IsZero()) {
         return result;
     }
 
-    // School multiplication algorithm using bit operations
-    ArbitraryUnsignedInt multiplicand = *this;
-
-    for (size_t i = 0; i < BitSize; ++i) {
-        if (other.GetBit(i)) {
-            // Add multiplicand to result, shifted by i positions
-            ArbitraryUnsignedInt shifted_multiplicand = multiplicand;
-            shifted_multiplicand.storage_.ShiftLeft(i);
-
-            // Add using bit manipulation (carry propagation)
-            bool carry = false;
-            for (size_t bit = 0; bit < BitSize; ++bit) {
-                bool a = result.GetBit(bit);
-                bool b = shifted_multiplicand.GetBit(bit);
-
-                bool sum = a ^ b ^ carry;
-                carry = (a && b) || (carry && (a ^ b));
-
-                result.SetBit(bit, sum);
-
-                if (bit == BitSize - 1){
-                    break; // Prevent overflow
-                }
-            }
+    size_t bitShiftCount = BitSize;
+    // Standard binary multiplication algorithm
+    while (bitShiftCount) {
+        if (multiplier.GetBit(0)) {  // If lowest bit is 1
+            result += multiplicand;
         }
+        multiplicand <<= 1;  // Shift multiplicand left
+        multiplier >>= 1;    // Shift multiplier right
+        bitShiftCount -= 1;
     }
 
     return result;
