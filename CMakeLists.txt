@@ -8,17 +8,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define include directory
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Interface headers
-set(INTERFACE_HEADERS
-        ${INCLUDE_DIR}/interfaces/IBitAccessible.h
-        ${INCLUDE_DIR}/interfaces/IBitAnalyzable.h
-        ${INCLUDE_DIR}/interfaces/IBitCopyable.h
-        ${INCLUDE_DIR}/interfaces/IBitManipulable.h
-        ${INCLUDE_DIR}/interfaces/IByteAccessible.h
-        ${INCLUDE_DIR}/interfaces/IByteAnalyzable.h
-        ${INCLUDE_DIR}/interfaces/IByteCopyable.h
-        ${INCLUDE_DIR}/interfaces/IByteManipulable.h
-        ${INCLUDE_DIR}/interfaces/IStorage.h
+# Concept headers
+set(CONCEPT_HEADERS
+        ${INCLUDE_DIR}/concepts/BitAccessible.h
+        ${INCLUDE_DIR}/concepts/BitAnalyzable.h
+        ${INCLUDE_DIR}/concepts/BitCopyable.h
+        ${INCLUDE_DIR}/concepts/BitManipulable.h
+        ${INCLUDE_DIR}/concepts/ByteAccessible.h
+        ${INCLUDE_DIR}/concepts/ByteAnalyzable.h
+        ${INCLUDE_DIR}/concepts/ByteCopyable.h
+        ${INCLUDE_DIR}/concepts/ByteManipulable.h
+        ${INCLUDE_DIR}/concepts/Storage.h
+        ${INCLUDE_DIR}/concepts/MemoryPlace.h
 )
 
 # Core headers
@@ -40,7 +41,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Create the main library
-add_library(arbitrary_bitwidth_numbers INTERFACE ${INTERFACE_HEADERS} ${CORE_HEADERS})
+add_library(arbitrary_bitwidth_numbers INTERFACE ${CORE_HEADERS})
 
 # Create test executable
 add_executable(arbitrary_bitwidth_numbers_tests

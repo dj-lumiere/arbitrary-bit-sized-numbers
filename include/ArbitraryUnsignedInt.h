@@ -11,7 +11,8 @@
 #include <array>
 #include <iostream>
 #include <utility>
-#include "../include/interfaces/IStorage.h"
+#include "../include/concepts/StorageProvider.h"
+#include "storage/CPUStorage.h"
 
 /**
  * @brief Represents an arbitrary-sized unsigned integer with customizable size, offset, and memory location.
@@ -22,15 +23,19 @@
  *
  * @tparam BitSize The number of bits used to store the integer. It must be greater than 1.
  * @tparam BitOffset The bit offset for memory alignment.
- * @tparam MemoryPlace The underlying storage mechanism.
+ * @tparam StorageProvider The underlying storage provider.
  */
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 class ArbitraryUnsignedInt {
-    static_assert(BitSize > 0, "Unsigned int size must be greater than 0");
-
+    static constexpr size_t storageBytes = (BitSize + BitOffset + 7) >> 3;
+    using StorageType = typename StorageProviderType::template StorageType<storageBytes>;
+    StorageType storage_;
+    
+    // Helper functions for arithmetic
+    void Normalize(); // Ensure unused bits are zero
 public:
     // Constructors
-    ArbitraryUnsignedInt() {
+    ArbitraryUnsignedInt() : storage_() {
         storage_.Clear();
     }
     ArbitraryUnsignedInt(const ArbitraryUnsignedInt& other) = default;
@@ -41,8 +46,10 @@ public:
     explicit ArbitraryUnsignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
-    explicit ArbitraryUnsignedInt(const std::string& str,
-        int base = 10);
+    explicit ArbitraryUnsignedInt(const char* str, int base = 10) {
+        ArbitraryUnsignedInt(std::string(str), base);
+    }
+    explicit ArbitraryUnsignedInt(const std::string& str, int base = 10);
 
     // Assignment operators
     ArbitraryUnsignedInt& operator=(const ArbitraryUnsignedInt& other) = default;
@@ -60,15 +67,15 @@ public:
     explicit operator unsigned long long() const;
 
     // Different size/offset conversions
-    template<size_t NewBitSize, size_t NewBitOffset, typename NewMemoryPlace>
-    explicit operator ArbitraryUnsignedInt<NewBitSize, NewBitOffset, NewMemoryPlace>() const;
+    template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProvider>
+    explicit operator ArbitraryUnsignedInt<NewBitSize, NewBitOffset, NewStorageProvider>() const;
 
     // Arithmetic operators
-    ArbitraryUnsignedInt operator+(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator-(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator*(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator/(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator%(const ArbitraryUnsignedInt& other) const;
+    ArbitraryUnsignedInt operator+(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator-(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator*(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator/(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator%(const ArbitraryUnsignedInt& other);
 
     // Assignment arithmetic operators
     ArbitraryUnsignedInt& operator+=(const ArbitraryUnsignedInt& other);
@@ -78,9 +85,9 @@ public:
     ArbitraryUnsignedInt& operator%=(const ArbitraryUnsignedInt& other);
 
     // Bitwise operators
-    ArbitraryUnsignedInt operator&(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator|(const ArbitraryUnsignedInt& other) const;
-    ArbitraryUnsignedInt operator^(const ArbitraryUnsignedInt& other) const;
+    ArbitraryUnsignedInt operator&(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator|(const ArbitraryUnsignedInt& other);
+    ArbitraryUnsignedInt operator^(const ArbitraryUnsignedInt& other);
     ArbitraryUnsignedInt operator~() const;
     ArbitraryUnsignedInt operator<<(size_t shift) const;
     ArbitraryUnsignedInt operator>>(size_t shift) const;
@@ -108,8 +115,7 @@ public:
 
     // Bit manipulation
     bool GetBit(size_t index) const;
-    void SetBit(size_t index,
-        bool value = true);
+    void SetBit(size_t index, bool value = true);
     void ClearBit(size_t index);
     void FlipBit(size_t index);
 
@@ -125,12 +131,10 @@ public:
     std::string BitRepresentation() const;
 
     // I/O operators
-    friend std::ostream& operator<<(std::ostream& os,
-        const ArbitraryUnsignedInt& value) {
+    friend std::ostream& operator<<(std::ostream& os, const ArbitraryUnsignedInt& value) {
         return os << value.ToString();
     }
-    friend std::istream& operator>>(std::istream& is,
-        ArbitraryUnsignedInt& value) {
+    friend std::istream& operator>>(std::istream& is, ArbitraryUnsignedInt& value) {
         throw std::runtime_error("Not implemented");
     }
 
@@ -155,8 +159,7 @@ public:
     }
 
     // Division operations with both quotient and remainder
-    std::pair<ArbitraryUnsignedInt, ArbitraryUnsignedInt> DivRem(
-        const ArbitraryUnsignedInt& other) const;
+    std::pair<ArbitraryUnsignedInt, ArbitraryUnsignedInt> DivRem(const ArbitraryUnsignedInt& other) const;
 
     // Power operations
     ArbitraryUnsignedInt Pow(const ArbitraryUnsignedInt& exp) const;
@@ -227,84 +230,59 @@ public:
     std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ToBeBytes() const; // big endian
     std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ToLeBytes() const; // little endian
     std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ToNeBytes() const; // native endian
-    static ArbitraryUnsignedInt FromBeBytes(
-        const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
-    static ArbitraryUnsignedInt FromLeBytes(
-        const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
-    static ArbitraryUnsignedInt FromNeBytes(
-        const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
-
-private:
-    static constexpr size_t storage_bytes = (BitSize + BitOffset + 7) >> 3;
-    using storage_type = typename MemoryPlace::template storage_type<storage_bytes>;
-
-    static_assert(std::derived_from<storage_type, IStorage>,
-        "MemoryPlace::storage_type must implement IStorage");
-
-    storage_type storage_;
-
-    // Helper functions for arithmetic
-    void Normalize(); // Ensure unused bits are zero
+    static ArbitraryUnsignedInt FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
+    static ArbitraryUnsignedInt FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
+    static ArbitraryUnsignedInt FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes);
 };
 
 // Additional utility functions
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>
-Gcd(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>
+Gcd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b);
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>
-Lcm(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>
+Lcm(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b);
 
 // Wide multiplication (returns result in double-wide type)
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace>
-WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProviderType>
+WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b);
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace>
-WideningLcm(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProviderType>
+WideningLcm(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b);
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool>
-CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b,
-    bool carry);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool carry);
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool>
-BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b,
-    bool borrow);
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool borrow);
 
 // Utility type aliases for common formats
-template<typename MemoryPlace>
-using UInt8 = ArbitraryUnsignedInt<8, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt8 = ArbitraryUnsignedInt<8, 0, StorageProvider>;
 
-template<typename MemoryPlace>
-using UInt16 = ArbitraryUnsignedInt<16, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt16 = ArbitraryUnsignedInt<16, 0, StorageProvider>;
 
-template<typename MemoryPlace>
-using UInt32 = ArbitraryUnsignedInt<32, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt32 = ArbitraryUnsignedInt<32, 0, StorageProvider>;
 
-template<typename MemoryPlace>
-using UInt64 = ArbitraryUnsignedInt<64, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt64 = ArbitraryUnsignedInt<64, 0, StorageProvider>;
 
-template<typename MemoryPlace>
-using UInt128 = ArbitraryUnsignedInt<128, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt128 = ArbitraryUnsignedInt<128, 0, StorageProvider>;
 
-template<typename MemoryPlace>
-using UInt256 = ArbitraryUnsignedInt<256, 0, MemoryPlace>;
+template<typename StorageProvider>
+using UInt256 = ArbitraryUnsignedInt<256, 0, StorageProvider>;
 
 // == CONSTRUCTORS == 
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 template<typename T, typename>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ArbitraryUnsignedInt(T value) {
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ArbitraryUnsignedInt(T value) : storage_() {
     static_assert(std::is_integral_v<T>, "T must be an integral type");
     storage_.Clear();
 
@@ -337,21 +315,25 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ArbitraryUnsignedInt(T va
     }
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ArbitraryUnsignedInt(const std::string& str,
-    int base) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ArbitraryUnsignedInt(const std::string& str, int base) {
     if (base < 2 || base > 36) {
         throw std::invalid_argument("Invalid base");
     }
-    for (size_t i = 0; i < str.size(); i++) {
-        char c = str[i];
-        if (c >= '0' && c <= '9') {
+    // Clear the storage first
+    *this = ArbitraryUnsignedInt(0);
+
+    // Convert base to ArbitraryUnsignedInt
+    ArbitraryUnsignedInt base_value(base);
+
+    for (char c : str) {
+        if ('0' <= c && c <= '9') {
             c -= '0';
         }
-        else if (c >= 'a' && c <= 'z') {
+        else if ('a' <= c && c <= 'z') {
             c -= 'a' - 10;
         }
-        else if (c >= 'A' && c <= 'Z') {
+        else if ('A' <= c && c <= 'Z') {
             c -= 'A' - 10;
         }
         else {
@@ -360,16 +342,15 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ArbitraryUnsignedInt(cons
         if (c >= base) {
             throw std::invalid_argument("Invalid character in string");
         }
-        this->operator*=(base);
-        this->operator+=(c);
+        this->operator*=(base_value); // Now using ArbitraryUnsignedInt
+        this->operator+=(ArbitraryUnsignedInt(c)); // Convert digit to ArbitraryUnsignedInt
     }
     this->Normalize();
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 template<typename T, typename>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator=(T value) {
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator=(T value) {
     // Create temporary and move-assign
     *this = ArbitraryUnsignedInt(value);
     return *this;
@@ -377,17 +358,19 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
 
 // == TYPE CONVERSION ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator bool() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator bool() const {
     return not this->storage_.IsZero();
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned char() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned char() const {
     unsigned char result = 0;
-    result |= storage_[0] >> BitOffset;
-    if (storage_.GetByteSize() > 1 && BitSize >= 8 - BitOffset) {
-        result |= storage_[1] << (8 - BitOffset);
+    size_t byteOffset = BitOffset / 8;
+    size_t bitOffset = BitOffset % 8;
+    result |= storage_[byteOffset] >> bitOffset;
+    if (storage_.GetByteSize() > 1 + byteOffset && BitSize >= 8 - bitOffset) {
+        result |= storage_[1 + byteOffset] << (8 - bitOffset);
     }
     if (BitSize < 8) {
         result &= (1 << BitSize) - 1;
@@ -395,8 +378,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned char() 
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned short() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned short() const {
     unsigned short result = 0;
     size_t target_byte_size = sizeof(result);
     for (int i = 0; i < std::min(target_byte_size, storage_.GetByteSize()); i++) {
@@ -413,44 +396,42 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned short()
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned int() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned int() const {
     unsigned int result = 0;
     size_t target_byte_size = sizeof(result);
     result = storage_[0] >> BitOffset;
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned long() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned long() const {
     unsigned long result = 0;
     size_t target_byte_size = sizeof(result);
     result = storage_[0] >> BitOffset;
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator unsigned long long() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned long long() const {
     unsigned long long result = 0;
     size_t target_byte_size = sizeof(result);
     result = storage_[0] >> BitOffset;
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-template<size_t NewBitSize, size_t NewBitOffset, typename NewMemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator ArbitraryUnsignedInt<
-    NewBitSize, NewBitOffset, NewMemoryPlace>() const {
-    auto result = ArbitraryUnsignedInt<NewBitSize, NewBitOffset, NewMemoryPlace>();
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProvider>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<NewBitSize, NewBitOffset, NewStorageProvider>() const {
+    auto result = ArbitraryUnsignedInt<NewBitSize, NewBitOffset, NewStorageProvider>();
     result.storage_.CopyBitsFrom(storage_, BitOffset, std::min(BitSize, NewBitSize));
     return result;
 }
 
 // == ARITHMETIC OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator+(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator+(const ArbitraryUnsignedInt& other) {
     for (size_t i = 0; i < storage_.GetByteSize(); i++) {
         storage_[i] += other.storage_[i];
         if (storage_[i] < other.storage_[i] and i + 1 < storage_.GetByteSize()) {
@@ -460,9 +441,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator-(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator-(const ArbitraryUnsignedInt& other) {
     bool shouldBorrow = false;
     for (size_t i = 0; i < storage_.GetByteSize(); i++) {
         if (storage_[i] < other.storage_[i]) {
@@ -479,9 +459,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator*(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator*(const ArbitraryUnsignedInt& other) {
     ArbitraryUnsignedInt result;
     result.storage_.ClearAllBits();
 
@@ -510,8 +489,9 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
 
                 result.SetBit(bit, sum);
 
-                if (bit == BitSize - 1)
+                if (bit == BitSize - 1){
                     break; // Prevent overflow
+                }
             }
         }
     }
@@ -519,9 +499,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator/(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator/(const ArbitraryUnsignedInt& other) {
     // Division by zero check
     if (other.IsZero()) {
         throw std::runtime_error("Division by zero");
@@ -576,13 +555,12 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
         // Compare dividend with shifted divisor
         bool can_subtract = true;
 
-        // Check if dividend >= divisor (bit by bit comparison)
         for (size_t bit = BitSize; bit > 0; --bit) {
             bool div_bit = dividend.GetBit(bit - 1);
             bool divisor_bit = divisor.GetBit(bit - 1);
 
             if (div_bit != divisor_bit) {
-                can_subtract = div_bit; // dividend bit is 1, divisor bit is 0
+                can_subtract = div_bit;
                 break;
             }
         }
@@ -613,9 +591,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return quotient;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator%(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator%(const ArbitraryUnsignedInt& other) {
     // Division by zero check
     if (other.IsZero()) {
         throw std::runtime_error("Division by zero");
@@ -660,7 +637,7 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     }
 
     if (remainder_msb < divisor_msb) {
-        return remainder; // Remainder is the original number
+        return remainder;
     }
 
     // Shift divisor to align with remainder's MSB
@@ -706,141 +683,119 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
 
 // == ARITHMETIC ASSIGNMENT OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator+=(const ArbitraryUnsignedInt& other) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator+=(const ArbitraryUnsignedInt& other)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator+=(const ArbitraryUnsignedInt& other) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator+=(const ArbitraryUnsignedInt& other) {
+    *this = *this + other;
+    return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator-=(const ArbitraryUnsignedInt& other) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator-=(const ArbitraryUnsignedInt& other)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator-=(const ArbitraryUnsignedInt& other) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator-=(const ArbitraryUnsignedInt& other) {
+    *this = *this - other;
+    return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator*=(const ArbitraryUnsignedInt& other) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator*=(const ArbitraryUnsignedInt& other)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator*=(const ArbitraryUnsignedInt& other) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator*=(const ArbitraryUnsignedInt& other) {
+    *this = *this * other;
+    return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator/=(const ArbitraryUnsignedInt& other) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator/=(const ArbitraryUnsignedInt& other)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator/=(const ArbitraryUnsignedInt& other) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator/=(const ArbitraryUnsignedInt& other) {
+    *this = *this / other;
+    return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator%=(const ArbitraryUnsignedInt& other) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator%=(const ArbitraryUnsignedInt& other)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator%=(const ArbitraryUnsignedInt& other) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator%=(const ArbitraryUnsignedInt& other) {
+    *this = *this % other;
+    return *this;
 }
 
 // == BITWISE OPERATION ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator&(const ArbitraryUnsignedInt& other) const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator&(const ArbitraryUnsignedInt& other) {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = storage_;
     result.storage_.ByteAnd(other.storage_);
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator|(const ArbitraryUnsignedInt& other) const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator|(const ArbitraryUnsignedInt& other) {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = storage_;
     result.storage_.ByteOr(other.storage_);
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator^(const ArbitraryUnsignedInt& other) const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator^(const ArbitraryUnsignedInt& other) {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = storage_;
     result.storage_.ByteXor(other.storage_);
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator~() const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator~() const {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = storage_.ByteNot();
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator<<(size_t shift) const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<<(size_t shift) const {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = this->storage_;
     result.storage_.ShiftLeft(shift);
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator>>(size_t shift) const {
-    ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> result;
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>>(size_t shift) const {
+    ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> result;
     result.storage_ = this->storage_;
     result.storage_.ShiftRight(shift);
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator&=(const ArbitraryUnsignedInt& other) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator&=(const ArbitraryUnsignedInt& other) {
     this->storage_.BitwiseAnd(other->storage_);
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator|=(const ArbitraryUnsignedInt& other) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator|=(const ArbitraryUnsignedInt& other) {
     this->storage_.BitwiseOr(other->storage_);
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator^=(const ArbitraryUnsignedInt& other) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator^=(const ArbitraryUnsignedInt& other) {
     this->storage_.BitwiseXor(other->storage_);
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator<<=(size_t shift) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<<=(size_t shift) {
     this->storage_.ShiftLeft(shift);
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator>>=(size_t shift) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>>=(size_t shift) {
     this->storage_.ShiftRight(shift);
     return *this;
 }
 
 // == COMPARISON OPERATOR ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator==(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator==(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -860,9 +815,8 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator==(
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator!=(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator!=(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -882,9 +836,8 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator!=(
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator<(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -904,9 +857,8 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator<(
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator<=(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<=(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -926,9 +878,8 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator<=(
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator>(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -948,9 +899,8 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator>(
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator>=(
-    const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitraryUnsignedInt& other) const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -972,31 +922,27 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::operator>=(
 
 // == INCREMENT & DECREMENT OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator++() {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator++() {
     storage_.Increment();
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator++(int) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator++(int) {
     ArbitraryUnsignedInt temp = *this;
     storage_.Increment();
     return temp;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator--() {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator--() {
     storage_.Decrement();
     return *this;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::operator--(int) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator--(int) {
     ArbitraryUnsignedInt temp = *this;
     storage_.Decrement();
     return temp;
@@ -1004,120 +950,105 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
 
 // == BITWISE ACCESS OPERATORS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::GetBit(size_t index) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::GetBit(size_t index) const {
     return storage_.GetBit(index + BitOffset);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::SetBit(size_t index,
-    bool value) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+void ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SetBit(size_t index, bool value) {
     storage_.SetBit(index + BitOffset, value);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ClearBit(size_t index) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+void ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ClearBit(size_t index) {
     storage_.ClearBit(index + BitOffset);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FlipBit(size_t index) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+void ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FlipBit(size_t index) {
     storage_.FlipBit(index + BitOffset);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountLeadingZeros() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountLeadingZeros() const {
     storage_.CountLeadingZeros();
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountTrailingZeros() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountTrailingZeros() const {
     storage_.CountTrailingZeros();
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::PopCount() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::PopCount() const {
     storage_.PopCount();
 }
 
 // == STRINGIFY OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToString(int base) const {
-    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToString(int base) const
-    throw std::runtime_error(
-        "std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToString(int base) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToString(int base) const {
+    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToString(int base) const
+    throw std::runtime_error("std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToString(int base) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToBinaryString() const {
-    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToBinaryString() const
-    throw std::runtime_error(
-        "std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToBinaryString() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() const {
+    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() const
+    throw std::runtime_error("std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToHexString() const {
-    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToHexString() const
-    throw std::runtime_error(
-        "std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToHexString() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToHexString() const {
+    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToHexString() const
+    throw std::runtime_error("std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToHexString() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::BitRepresentation() const {
-    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::BitRepresentation() const
-    throw std::runtime_error(
-        "std::string ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::BitRepresentation() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() const {
+    // TODO: Implement std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() const
+    throw std::runtime_error("std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() const not implemented.");
 }
 
 // == STATIC PROPERTIES ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::Max() {
-    auto result = ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>();
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Max() {
+    auto result = ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>();
     result.storage_.SetAllBits();
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::Min() {
-    auto result = ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>();
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Min() {
+    auto result = ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>();
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, ArbitraryUnsignedInt<
-              BitSize, BitOffset, MemoryPlace> >
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::DivRem(
-    const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::DivRem(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::DivRem(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> >
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::Pow(const ArbitraryUnsignedInt& exp) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Pow(const ArbitraryUnsignedInt& exp) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Pow(const ArbitraryUnsignedInt& exp) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(const ArbitraryUnsignedInt& exp) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(const ArbitraryUnsignedInt& exp) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(const ArbitraryUnsignedInt& exp) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::Pow(size_t exp) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Pow(size_t exp) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Pow(size_t exp) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(size_t exp) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(size_t exp) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Pow(size_t exp) const not implemented.");
 }
 
 // == CHECKED OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedAdd(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedAdd(const ArbitraryUnsignedInt& other) const {
     auto result = *this + other;
     if (result > *this || result > other) {
         return std::nullopt;
@@ -1125,9 +1056,8 @@ std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryU
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedSub(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedSub(const ArbitraryUnsignedInt& other) const {
     auto result = *this - other;
     if (*this < other) {
         return std::nullopt;
@@ -1135,43 +1065,34 @@ std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryU
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedMul(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedMul(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedMul(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedMul(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedMul(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedMul(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedDiv(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedDiv(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedDiv(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedDiv(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedDiv(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedDiv(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedRem(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedRem(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedRem(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedRem(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedRem(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedRem(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedPow(const ArbitraryUnsignedInt& exp) const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedPow(const ArbitraryUnsignedInt& exp) const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedPow(const ArbitraryUnsignedInt& exp) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPow(const ArbitraryUnsignedInt& exp) const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPow(const ArbitraryUnsignedInt& exp) const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPow(const ArbitraryUnsignedInt& exp) const not implemented.");
 }
 
 // == SATURATING OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::SaturatingAdd(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingAdd(const ArbitraryUnsignedInt& other) const {
     auto result = *this + other;
     if (result > *this || result > other) {
         return ArbitraryUnsignedInt::Max();
@@ -1179,9 +1100,8 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::SaturatingSub(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingSub(const ArbitraryUnsignedInt& other) const {
     auto result = *this - other;
     if (*this < other) {
         return ArbitraryUnsignedInt::Min();
@@ -1189,91 +1109,75 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
     return result;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::SaturatingMul(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingMul(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingMul(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingMul(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingMul(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingMul(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::SaturatingPow(const ArbitraryUnsignedInt& exp) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingPow(const ArbitraryUnsignedInt& exp) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::SaturatingPow(const ArbitraryUnsignedInt& exp) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingPow(const ArbitraryUnsignedInt& exp) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingPow(const ArbitraryUnsignedInt& exp) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::SaturatingPow(const ArbitraryUnsignedInt& exp) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingAdd(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingAdd(const ArbitraryUnsignedInt& other) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns this + other.
     return *this + other;
 }
-
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingSub(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingSub(const ArbitraryUnsignedInt& other) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns this - other.
     return *this - other;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingMul(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingMul(const ArbitraryUnsignedInt& other) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns this * other.
     return *this * other;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingDiv(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingDiv(const ArbitraryUnsignedInt& other) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns this / other.
     return *this / other;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingRem(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingRem(const ArbitraryUnsignedInt& other) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns this % other.
     return *this % other;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingPow(const ArbitraryUnsignedInt& exp) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingPow(const ArbitraryUnsignedInt& exp) const {
     // In ArbitraryUnsignedInt, the default method for processing overflow is wrapping mode,
     // so it just returns pow(this, other).
     return pow(*this, exp);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingShl(size_t shift) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::WrappingShl(size_t shift) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::WrappingShl(size_t shift) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShl(size_t shift) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShl(size_t shift) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShl(size_t shift) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::WrappingShr(size_t shift) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::WrappingShr(size_t shift) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::WrappingShr(size_t shift) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShr(size_t shift) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShr(size_t shift) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::WrappingShr(size_t shift) not implemented.");
 }
 
 // == OVERFLOWING OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingAdd(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingAdd(const ArbitraryUnsignedInt& other) const {
     auto result = *this + other;
     if (result > *this || result > other) {
         return { result, true };
@@ -1281,9 +1185,8 @@ std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> Arbitrary
     return { result, false };
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingSub(const ArbitraryUnsignedInt& other) const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingSub(const ArbitraryUnsignedInt& other) const {
     auto result = *this - other;
     if (*this < other) {
         return { result, true };
@@ -1291,134 +1194,108 @@ std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> Arbitrary
     return { result, false };
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingMul(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingMul(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingMul(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingMul(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingMul(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingMul(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingDiv(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingDiv(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingDiv(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingDiv(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingDiv(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingDiv(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingRem(const ArbitraryUnsignedInt& other) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingRem(const ArbitraryUnsignedInt& other) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingRem(const ArbitraryUnsignedInt& other) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingRem(const ArbitraryUnsignedInt& other) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingRem(const ArbitraryUnsignedInt& other) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingRem(const ArbitraryUnsignedInt& other) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingPow(const ArbitraryUnsignedInt& exp) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingPow(const ArbitraryUnsignedInt& exp) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingPow(const ArbitraryUnsignedInt& exp) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingPow(const ArbitraryUnsignedInt& exp) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingPow(const ArbitraryUnsignedInt& exp) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingPow(const ArbitraryUnsignedInt& exp) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingShl(size_t shift) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingShl(size_t shift) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingShl(size_t shift) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShl(size_t shift) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShl(size_t shift) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShl(size_t shift) const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::OverflowingShr(size_t shift) const {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingShr(size_t shift) const
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::OverflowingShr(size_t shift) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShr(size_t shift) const {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShr(size_t shift) const
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShr(size_t shift) const not implemented.");
 }
 
 // == BITWISE COUNTING OPERATIONS ==
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountOnes() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountOnes() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountOnes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountOnes() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountOnes() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountOnes() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountZeros() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountZeros() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CountZeros() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountZeros() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountZeros() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CountZeros() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingZeros() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingZeros() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingZeros() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingZeros() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingZeros() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingZeros() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingZeros() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingZeros() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingZeros() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingZeros() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingZeros() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingZeros() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingOnes() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingOnes() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::LeadingOnes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingOnes() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingOnes() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::LeadingOnes() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingOnes() const {
-    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingOnes() const
-    throw std::runtime_error(
-        "size_t ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TrailingOnes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingOnes() const {
+    // TODO: Implement size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingOnes() const
+    throw std::runtime_error("size_t ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TrailingOnes() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::RotateLeft(size_t n) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::RotateLeft(size_t n) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::RotateLeft(size_t n) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateLeft(size_t n) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateLeft(size_t n) const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateLeft(size_t n) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::RotateRight(size_t n) const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::RotateRight(size_t n) const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::RotateRight(size_t n) const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateRight(size_t n) const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateRight(size_t n) not implemented.
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::RotateRight(size_t n) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::ReverseBits() const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ReverseBits() const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ReverseBits() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBits() const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBits() const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBits() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::ReverseBytes() const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ReverseBytes() const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ReverseBytes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBytes() const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBytes() const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ReverseBytes() not implemented.");
 }
 
 // == UTILITY OPERATIONS
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::IsZero() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::IsZero() const {
     const int rightOffset = 8 - ((BitSize + BitOffset) & 7);
     for (int i = storage_.GetByteSize() - 1; i >= 0; --i) {
         int leftByte = storage_[i];
@@ -1435,123 +1312,94 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::IsZero() const {
     return true;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::Signum() const {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Signum() const {
     return IsZero() ?
                0 :
                1;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 template<typename T>
-std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TryInto() const {
-    // TODO: Implement std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TryInto() const
-    throw std::runtime_error(
-        "std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::TryInto() const not implemented.");
+std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() const {
+    // TODO: Implement std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() const
+    throw std::runtime_error("std::optional<T> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::NextPowerOfTwo() const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::NextPowerOfTwo() const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::NextPowerOfTwo() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedNextPowerOfTwo() const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedNextPowerOfTwo() const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedNextPowerOfTwo() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::PreviousPowerOfTwo() const {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::PreviousPowerOfTwo() const
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::PreviousPowerOfTwo() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() const {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() const
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::CheckedPreviousPowerOfTwo() const {
-    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedPreviousPowerOfTwo() const
-    throw std::runtime_error(
-        "std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> > ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::CheckedPreviousPowerOfTwo() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPreviousPowerOfTwo() const {
+    // TODO: Implement std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPreviousPowerOfTwo() const
+    throw std::runtime_error("std::optional<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> > ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPreviousPowerOfTwo() const not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::IsPowerOfTwo() const {
-    // TODO: Implement bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::IsPowerOfTwo() const
-    throw std::runtime_error(
-        "bool ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::IsPowerOfTwo() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::IsPowerOfTwo() const {
+    // TODO: Implement bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::IsPowerOfTwo() const
+    throw std::runtime_error("bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::IsPowerOfTwo() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::ToBeBytes() const {
-    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToBeBytes() const
-    throw std::runtime_error(
-        "std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToBeBytes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBeBytes() const {
+    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToBeBytes() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::ToLeBytes() const {
-    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToLeBytes() const
-    throw std::runtime_error(
-        "std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToLeBytes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToLeBytes() const {
+    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToLeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToLeBytes() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::ToNeBytes() const {
-    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToNeBytes() const
-    throw std::runtime_error(
-        "std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::ToNeBytes() const not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToNeBytes() const {
+    // TODO: Implement std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToNeBytes() const
+    throw std::runtime_error("std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToNeBytes() not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::FromBeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromBeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::FromLeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromLeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<
-    BitSize, BitOffset, MemoryPlace>::FromNeBytes(
-    const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes)
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Normalize() {
-    // TODO: Implement void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Normalize()
-    throw std::runtime_error(
-        "void ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>::Normalize() not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+void ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Normalize() {
+    // TODO: Implement void ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::Normalize()
+    return;
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> Gcd(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> Gcd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b) {
     // This code is based on euclid's algorithm, which states 
     // WLOG, gcd(a, b) = gcd(a % b, b)
     // So, we can just call the recursive function.
@@ -1563,47 +1411,32 @@ ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> Gcd(
                Gcd(b, a % b);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace> Lcm(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType> Lcm(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b) {
     return a * b / Gcd(a, b);
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningMul(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b) {
-    // TODO: Implement ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b)
-    throw std::runtime_error(
-        "ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProviderType> WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b) {
+    // TODO: Implement ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProvider> WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b)
+    throw std::runtime_error("ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProvider>::WideningMul(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-ArbitraryUnsignedInt<BitSize * 2, BitOffset, MemoryPlace> WideningLcm(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b) {
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+ArbitraryUnsignedInt<BitSize * 2, BitOffset, StorageProviderType> WideningLcm(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b) {
     return WideningMul(a, b / Gcd(a, b));
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> CarryingAdd(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b,
-    bool carry) {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b, bool carry)
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b, bool carry) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool carry) {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool carry)
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> CarryingAdd(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool carry) not implemented.");
 }
 
-template<size_t BitSize, size_t BitOffset, typename MemoryPlace>
-std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> BorrowingSub(
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a,
-    const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b,
-    bool borrow) {
-    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b, bool borrow)
-    throw std::runtime_error(
-        "std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, MemoryPlace>& b, bool borrow) not implemented.");
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool borrow) {
+    // TODO: Implement std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool borrow)
+    throw std::runtime_error("std::pair<ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>, bool> BorrowingSub(const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& a, const ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>& b, bool borrow) not implemented.");
 }
 
 #endif //ARBITRARYUNSIGNEDINT_H
