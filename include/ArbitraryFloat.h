@@ -26,9 +26,9 @@ template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requ
 class ArbitraryFloat {
     static_assert(ExpBits > 1, "Exponent bits must be greater than 1.");
     static_assert(MantissaBits > 0, "Mantissa bits must be greater than 0.");
-    static constexpr size_t total_bits = ExpBits + MantissaBits + 1;
-    static constexpr size_t storage_bytes = (total_bits + 7) >> 3;
-    using StorageType = decltype(StorageProviderType::template create<storage_bytes>());
+    static constexpr size_t totalBits = ExpBits + MantissaBits + 1;
+    static constexpr size_t storageBytes = (totalBits + 7) >> 3;
+    using StorageType = typename StorageProviderType::template StorageType<storageBytes>;
     StorageType storage_;
     
 public:
@@ -278,8 +278,6 @@ public:
     }
 
 private:
-
-
     // Helper functions
     void Normalize();
     bool IsSpecialValue() const;

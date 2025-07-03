@@ -30,8 +30,8 @@ template<size_t BitSize, size_t BitOffset, typename StorageProviderType> require
  */
 class ArbitrarySignedInt {
     static_assert(BitSize > 1, "Signed int size must be greater than 1");
-    static constexpr size_t storageBytes = (BitSize + BitOffset + 7) / 8;
-    using StorageType = decltype(StorageProviderType::template create<storageBytes>());
+    static constexpr size_t storageBytes = (BitSize + BitOffset + 7) >> 3;
+    using StorageType = typename StorageProviderType::template StorageType<storageBytes>;
     StorageType storage_;
 
 public:
