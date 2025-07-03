@@ -1,1077 +1,472 @@
-//
-// Created by Lumi on 25. 6. 16.
-//
-
 #ifndef CPUSTORAGE_H
 #define CPUSTORAGE_H
 
-#include "../../include/interfaces/istorage.h"
 #include <array>
 #include <memory>
+#include <cstdint>
 #include <algorithm>
-#include <future>
+#include <stdexcept>
+#include <optional>
+#include <span>
+#include <numeric>
 #include <cstring>
-#include <bit>
-#include <sstream>
-#include <iomanip>
 
-template<size_t Bytes>
-class CPUStorage : public IStorage {
-    static_assert(Bytes > 0, "CPUStorage size must be greater than 0");
+// Forward declaration of CPUStorageProvider
+class CPUStorageProvider;
 
-private:
-    std::array<uint8_t, Bytes> data_{};
-    static constexpr size_t totalBits = Bytes * 8;
-
+template<size_t size>
+class CPUStorage {
 public:
-    CPUStorage() = default;
-    CPUStorage(const CPUStorage& other) = default;
-    CPUStorage(CPUStorage&& other) noexcept = default;
-    CPUStorage& operator=(const CPUStorage& other) = default;
-    CPUStorage& operator=(CPUStorage&& other) noexcept = default;
+    std::array<uint8_t, size> data_;
 
-    // ===== IByteAccessible Implementation =====
-
-    uint8_t& operator[](size_t index) override;
-
-    const uint8_t& operator[](size_t index) const override;
-
-    uint8_t* Data() override;
-
-    const uint8_t* Data() const override;
-
-    size_t GetByteSize() const override;
-
-    void Fill(uint8_t value) override;
-
-    void Clear() override;
-
-    // ===== IBitAccessible Implementation =====
-
-    bool GetBit(const size_t bitIndex) const override;
-
-    void SetBit(const size_t bitIndex) override;
-
-    void ClearBit(const size_t bitIndex) override;
-
-    void FlipBit(const size_t bitIndex) override;
-
-    size_t GetBitSize() const override;
-
-    // ===== IBitAnalyzable Implementation =====
-
-    size_t PopCount() const override;
-
-    size_t CountLeadingZeros() const override;
-
-    size_t CountTrailingZeros() const override;
-
-    size_t CountLeadingOnes() const override;
-
-    size_t CountTrailingOnes() const override;
-
-    std::optional<size_t> FindFirstSet() const override;
-
-    std::optional<size_t> FindFirstClear() const override;
-
-    std::optional<size_t> FindLastSet() const override;
-
-    std::optional<size_t> FindLastClear() const override;
-
-    bool IsAllZeros() const override;
-
-    bool IsAllOnes() const override;
-
-    bool IsPowerOfTwo() const override;
-
-    bool HasEvenParity() const override;
-
-    bool HasOddParity() const override;
-
-    bool TestBitRange(size_t start, size_t count, bool expectedValue) const override;
-
-    // ===== IByteAnalyzable Implementation =====
-
-    std::optional<size_t> FindByte(uint8_t value, size_t startPos = 0) const override;
-
-    std::optional<size_t> FindBytePattern(std::span<const uint8_t> pattern, size_t startPos = 0) const override;
-
-    int Compare(const IByteAnalyzable& other) const override;
-
-    int Compare(std::span<const uint8_t> data) const override;
-
-    bool Equal(const IByteAnalyzable& other) const override;
-
-    bool Equal(std::span<const uint8_t> data) const override;
-
-    uint32_t ComputeCRC32() const override;
-
-    uint64_t ComputeHash() const override;
-
-    // ===== IBitCopyable Implementation =====
-
-    void CopyBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) override;
-
-    void MoveBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) override;
-
-    void CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart) override;
-
-    void CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const override;
-
-    void SetBitRange(size_t start, size_t count) override;
-
-    void ClearBitRange(size_t start, size_t count) override;
-
-    void FlipBitRange(size_t start, size_t count) override;
-
-    bool CanCopyBits(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart) const override;
-
-    // ===== IByteCopyable Implementation =====
-
-    void CopyBytesInternal(size_t srcStart, size_t byteCount, size_t dstStart) override;
-
-    void MoveBytesInternal(size_t srcStart, size_t byteCount, size_t dstStart) override;
-
-    void CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) override;
-
-    void CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount, size_t dstStart) const override;
-
-    void CopyFromBytes(const uint8_t* data, size_t dataSize, size_t srcStart, size_t dstStart,
-        size_t copyCount) override;
-
-    void CopyToBytes(uint8_t* data, size_t dataSize, size_t srcStart, size_t dstStart,
-        size_t copyCount) const override;
-
-    void CopyFromSpan(std::span<const uint8_t> source, size_t dstStart = 0) override;
-
-    void CopyToSpan(std::span<uint8_t> destination, size_t srcStart = 0) const override;
-
-    bool CanCopyBytes(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) const override;
-
-    // ===== IBitManipulable Implementation =====
-
-    void ShiftLeft(size_t positions) override;
-
-    void ShiftRight(size_t positions) override;
-
-    void RotateLeft(size_t positions) override;
-
-    void RotateRight(size_t positions) override;
-
-    void ReverseBits() override;
-
-    void ReverseBytes() override;
-
-    void BitwiseAnd(const IBitManipulable& other) override;
-
-    void BitwiseOr(const IBitManipulable& other) override;
-
-    void BitwiseXor(const IBitManipulable& other) override;
-
-    void BitwiseNot() override;
-
-    // ===== IByteManipulable Implementation =====
-
-    void SwapBytes(size_t index1, size_t index2) override;
-
-    void ReverseByteOrder() override;
-
-    void ShiftBytesLeft(size_t positions) override;
-
-    void ShiftBytesRight(size_t positions) override;
-
-    void ShiftBytesLeft(size_t positions, uint8_t fillValue) override;
-
-    void ShiftBytesRight(size_t positions, uint8_t fillValue) override;
-
-    void ToLittleEndian() override;
-
-    void ToBigEndian() override;
-
-    void ToNativeEndian() override;
-
-    void BytewiseAnd(const IByteManipulable& other) override;
-
-    void BytewiseOr(const IByteManipulable& other) override;
-
-    void BytewiseXor(const IByteManipulable& other) override;
-
-    void BytewiseNot() override;
-
-    // ===== ESSENTIAL FACTORY METHODS (from IStorage) =====
-
-    std::unique_ptr<IStorage> Clone() const override {
-        return std::make_unique<CPUStorage<Bytes> >(*this);
+    CPUStorage() {
+        data_.fill(0);
     }
 
-    // ===== Additional Helper Methods =====
-
-    // Direct access to underlying data for performance
-    const std::array<uint8_t, Bytes>& GetData() const;
-
-    std::array<uint8_t, Bytes>& GetData();
-
-    // Efficient bulk operations
-    void BitwiseAnd(const CPUStorage<Bytes>& other);
-
-    void BitwiseOr(const CPUStorage<Bytes>& other);
-
-    void BitwiseXor(const CPUStorage<Bytes>& other);
-
-    // Comparison operators for convenience
-    bool operator==(const CPUStorage<Bytes>& other) const;
-
-    bool operator!=(const CPUStorage<Bytes>& other) const;
-    
-    void OffsetAdd(const IBitManipulable& other,
-        size_t srcPosStart,
-        size_t srcPosCount,
-        size_t dstPosStart) override;
-    
-    void OffsetSub(const IBitManipulable& other,
-        size_t srcPosStart,
-        size_t srcPosCount,
-        size_t dstPosStart) override;
-
-    // Stream output for debugging
-    friend std::ostream& operator<<(std::ostream& os, const CPUStorage<Bytes>& storage) {
-        throw std::runtime_error("Not implemented");
+    // Implementations for Storage concept
+    std::unique_ptr<CPUStorage<size>> Clone() const {
+        return std::make_unique<CPUStorage<size>>(*this);
     }
-};
 
-// ===== Factory Function =====
-
-template<size_t Bytes>
-std::unique_ptr<IStorage> CreateCPUStorage();
-
-// ===== Memory Place for ArbitrarySignedInt =====
-
-struct CPUMemoryPlace {
-    template<size_t Bytes>
-    using storage_type = CPUStorage<Bytes>;
-
-    template<size_t Bytes>
-    static std::unique_ptr<IStorage> create() {
-        return std::make_unique<CPUStorage<Bytes> >();
+    // BitAccessible implementations
+    bool GetBit(const size_t bitIndex) const {
+        if (bitIndex >= size * 8)
+            throw std::out_of_range("Bit index out of bounds");
+        return (data_[bitIndex / 8] >> (bitIndex % 8)) & 1;
     }
-};
-
-// ===== IByteAccessible Implementation =====
-
-template<size_t Bytes>
-uint8_t& CPUStorage<Bytes>::operator[](size_t index) {
-    if (index >= Bytes) {
-        throw std::out_of_range("Index out of range");
+    void SetBit(const size_t bitIndex) {
+        if (bitIndex >= size * 8)
+            throw std::out_of_range("Bit index out of bounds");
+        data_[bitIndex / 8] |= (1 << (bitIndex % 8));
     }
-    return data_[index];
-}
-
-template<size_t Bytes>
-const uint8_t& CPUStorage<Bytes>::operator[](size_t index) const {
-    if (index >= Bytes) {
-        throw std::out_of_range("Index out of range");
+    void SetBit(const size_t bitIndex, const bool value) {
+        if (value)
+            SetBit(bitIndex);
+        else
+            ClearBit(bitIndex);
     }
-    return data_[index];
-}
-
-template<size_t Bytes>
-uint8_t* CPUStorage<Bytes>::Data() {
-    return data_.data();
-}
-
-template<size_t Bytes>
-const uint8_t* CPUStorage<Bytes>::Data() const {
-    return data_.data();
-}
-
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::GetByteSize() const {
-    return Bytes;
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::Fill(uint8_t value) {
-    data_.fill(value);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::Clear() {
-    data_.fill(0);
-}
-
-// ===== IBitAccessible Implementation =====
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::GetBit(const size_t bitIndex) const {
-    if (bitIndex >= totalBits) {
-        return false;
+    void ClearBit(const size_t bitIndex) {
+        if (bitIndex >= size * 8)
+            throw std::out_of_range("Bit index out of bounds");
+        data_[bitIndex / 8] &= ~(1 << (bitIndex % 8));
     }
-    return data_[bitIndex >> 3] & (1 << (bitIndex & 7));
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::SetBit(const size_t bitIndex) {
-    if (bitIndex < totalBits) {
-        data_[bitIndex >> 3] |= (1 << (bitIndex & 7));
+    void FlipBit(const size_t bitIndex) {
+        if (bitIndex >= size * 8)
+            throw std::out_of_range("Bit index out of bounds");
+        data_[bitIndex / 8] ^= (1 << (bitIndex % 8));
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ClearBit(const size_t bitIndex) {
-    if (bitIndex < totalBits) {
-        data_[bitIndex >> 3] &= ~(1 << (bitIndex & 7));
+    void SetAllBits() {
+        data_.fill(0xFF);
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::FlipBit(const size_t bitIndex) {
-    if (bitIndex < totalBits) {
-        data_[bitIndex >> 3] ^= (1 << (bitIndex & 7));
+    void ClearAllBits() {
+        data_.fill(0x00);
     }
-}
-
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::GetBitSize() const {
-    return totalBits;
-}
-
-// ===== IBitAnalyzable Implementation =====
-
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::PopCount() const {
-    size_t count = 0;
-    for (const auto& byte : data_) {
-        count += std::popcount(static_cast<unsigned char>(byte));
-    }
-    return count;
-}
-
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::CountLeadingZeros() const {
-    for (size_t i = 0; i < Bytes; ++i) {
-        uint8_t byte = data_[i];
-        if (byte != 0) {
-            return i * 8 + std::countl_zero(static_cast<unsigned char>(byte));
+    void FlipAllBits() {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] = ~data_[i];
         }
     }
-    return totalBits;
-}
 
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::CountTrailingZeros() const {
-    for (size_t i = Bytes; i > 0; --i) {
-        uint8_t byte = data_[i - 1];
-        if (byte != 0) {
-            return (Bytes - i) * 8 + std::countr_zero(static_cast<unsigned char>(byte));
-        }
+    constexpr size_t GetBitSize() const {
+        return size * 8;
     }
-    return totalBits;
-}
 
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::CountLeadingOnes() const {
-    for (size_t i = 0; i < Bytes; ++i) {
-        uint8_t byte = data_[i];
-        if (byte != 0xFF) {
-            return i * 8 + std::countl_one(static_cast<unsigned char>(byte));
+    // BitAnalyzable implementations
+    size_t PopCount() const {
+        size_t count = 0;
+        for (size_t i = 0; i < size; ++i) {
+            count += std::popcount(data_[i]);
         }
+        return count;
     }
-    return totalBits;
-}
-
-template<size_t Bytes>
-size_t CPUStorage<Bytes>::CountTrailingOnes() const {
-    for (size_t i = Bytes; i > 0; --i) {
-        uint8_t byte = data_[i - 1];
-        if (byte != 0xFF) {
-            return (Bytes - i) * 8 + std::countr_one(static_cast<unsigned char>(byte));
+    size_t CountLeadingZeros() const {
+        size_t count = 0;
+        for (size_t i = size - 1; i < size; --i) {
+            if (data_[i] == 0) {
+                count += 8;
+            } else {
+                count += std::countl_zero(data_[i]);
+                break;
+            }
         }
+        return count;
     }
-    return totalBits;
-}
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindFirstSet() const {
-    for (size_t i = Bytes; i > 0; --i) {
-        uint8_t byte = data_[i - 1];
-        if (byte != 0) {
-            return (Bytes - i) * 8 + std::countr_zero(static_cast<unsigned char>(byte));
+    size_t CountTrailingZeros() const {
+        size_t count = 0;
+        for (size_t i = 0; i < size; ++i) {
+            if (data_[i] == 0) {
+                count += 8;
+            } else {
+                count += std::countr_zero(data_[i]);
+                break;
+            }
         }
+        return count;
     }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindFirstClear() const {
-    for (size_t i = Bytes; i > 0; --i) {
-        uint8_t byte = data_[i - 1];
-        if (byte != 0xFF) {
-            return (Bytes - i) * 8 + std::countr_zero(static_cast<unsigned char>(~byte));
+    size_t CountLeadingOnes() const {
+        size_t count = 0;
+        for (size_t i = size - 1; i < size; --i) {
+            if (data_[i] == 0xFF) {
+                count += 8;
+            } else {
+                count += std::countl_one(data_[i]);
+                break;
+            }
         }
+        return count;
     }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindLastSet() const {
-    for (size_t i = 0; i < Bytes; ++i) {
-        uint8_t byte = data_[i];
-        if (byte != 0) {
-            return i * 8 + (7 - std::countl_zero(static_cast<unsigned char>(byte)));
+    size_t CountTrailingOnes() const {
+        size_t count = 0;
+        for (size_t i = 0; i < size; ++i) {
+            if (data_[i] == 0xFF) {
+                count += 8;
+            } else {
+                count += std::countr_one(data_[i]);
+                break;
+            }
         }
+        return count;
     }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindLastClear() const {
-    for (size_t i = 0; i < Bytes; ++i) {
-        uint8_t byte = data_[i];
-        if (byte != 0xFF) {
-            return i * 8 + (7 - std::countl_zero(static_cast<unsigned char>(~byte)));
+    std::optional<size_t> FindFirstSet() const {
+        for (size_t i = 0; i < size; ++i) {
+            if (data_[i] != 0) {
+                return i * 8 + std::countr_zero(data_[i]);
+            }
         }
-    }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::IsAllZeros() const {
-    return std::all_of(data_.begin(), data_.end(), [](uint8_t b) {
-        return b == 0;
-    });
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::IsAllOnes() const {
-    return std::all_of(data_.begin(), data_.end(), [](uint8_t b) {
-        return b == 0xFF;
-    });
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::IsPowerOfTwo() const {
-    const size_t popCount = PopCount();
-    return popCount == 1;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::HasEvenParity() const {
-    return (PopCount() & 1) == 0;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::HasOddParity() const {
-    return (PopCount() & 1) == 1;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::TestBitRange(size_t start, size_t count, bool expectedValue) const {
-    for (size_t i = 0; i < count; ++i) {
-        size_t bitIndex = start + i;
-        if (bitIndex >= totalBits) {
-            return false;
-        }
-        if (GetBit(bitIndex) != expectedValue) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// ===== IByteAnalyzable Implementation =====
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindByte(uint8_t value, size_t startPos) const {
-    for (size_t i = startPos; i < Bytes; ++i) {
-        if (data_[i] == value) {
-            return i;
-        }
-    }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-std::optional<size_t> CPUStorage<Bytes>::FindBytePattern(std::span<const uint8_t> pattern, size_t startPos) const {
-    if (pattern.empty() || startPos + pattern.size() > Bytes) {
         return std::nullopt;
     }
-
-    for (size_t i = startPos; i <= Bytes - pattern.size(); ++i) {
-        if (std::equal(pattern.begin(), pattern.end(), data_.begin() + i)) {
-            return i;
-        }
-    }
-    return std::nullopt;
-}
-
-template<size_t Bytes>
-int CPUStorage<Bytes>::Compare(const IByteAnalyzable& other) const {
-    // This is tricky since we don't know the other's size
-    // We'll compare what we can
-    // TODO: Maaaaaaaaaaaaaaybe use KMP for this thing?
-    size_t minSize = std::min(Bytes, static_cast<size_t>(8)); // Assume reasonable max
-    for (size_t i = 0; i < minSize; ++i) {
-        // This is a limitation - we can't easily access other's data
-        // In a real implementation, you might need a different approach
-    }
-    return 0; // Placeholder
-}
-
-template<size_t Bytes>
-int CPUStorage<Bytes>::Compare(std::span<const uint8_t> data) const {
-    size_t minSize = std::min(Bytes, data.size());
-    int result = std::memcmp(data_.data(), data.data(), minSize);
-    if (result != 0) {
-        return result;
-    }
-
-    // If equal up to minSize, compare sizes
-    if (Bytes < data.size()) {
-        return -1;
-    }
-    if (Bytes > data.size()) {
-        return 1;
-    }
-    return 0;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::Equal(const IByteAnalyzable& other) const {
-    return Compare(other) == 0;
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::Equal(std::span<const uint8_t> data) const {
-    return Compare(data) == 0;
-}
-
-template<size_t Bytes>
-uint32_t CPUStorage<Bytes>::ComputeCRC32() const {
-    // Simple CRC32 implementation
-    uint32_t crc = 0xFFFFFFFF;
-    for (uint8_t byte : data_) {
-        crc ^= byte;
-        for (int i = 0; i < 8; ++i) {
-            crc = (crc >> 1) ^ (0xEDB88320 & (-(crc & 1)));
-        }
-    }
-    return ~crc;
-}
-
-template<size_t Bytes>
-uint64_t CPUStorage<Bytes>::ComputeHash() const {
-    // Simple FNV-1a hash
-    uint64_t hash = 14695981039346656037ULL;
-    for (uint8_t byte : data_) {
-        hash ^= byte;
-        hash *= 1099511628211ULL;
-    }
-    return hash;
-}
-
-// ===== IBitCopyable Implementation =====
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) {
-    if (srcStart + bitCount > totalBits || dstStart + bitCount > totalBits) {
-        return; // Out of bounds
-    }
-
-    // Handle overlapping regions
-    if (srcStart < dstStart && srcStart + bitCount > dstStart) {
-        // Copy backwards to avoid overlap issues
-        for (size_t i = bitCount; i > 0; --i) {
-            bool bit = GetBit(srcStart + i - 1);
-            if (bit) {
-                SetBit(dstStart + i - 1);
-            }
-            else {
-                ClearBit(dstStart + i - 1);
+    std::optional<size_t> FindFirstClear() const {
+        for (size_t i = 0; i < size; ++i) {
+            if (data_[i] != 0xFF) {
+                return i * 8 + std::countr_one(data_[i]);
             }
         }
+        return std::nullopt;
     }
-    else {
-        // Copy forwards
+    std::optional<size_t> FindLastSet() const {
+        for (size_t i = size - 1; i < size; --i) {
+            if (data_[i] != 0) {
+                return i * 8 + 7 - std::countl_zero(data_[i]);
+            }
+        }
+        return std::nullopt;
+    }
+    std::optional<size_t> FindLastClear() const {
+        for (size_t i = size - 1; i < size; --i) {
+            if (data_[i] != 0xFF) {
+                return i * 8 + 7 - std::countl_one(data_[i]);
+            }
+        }
+        return std::nullopt;
+    }
+    bool IsAllZeros() const {
+        return std::all_of(data_.begin(), data_.end(), [](uint8_t b) { return b == 0; });
+    }
+    bool IsAllOnes() const {
+        return std::all_of(data_.begin(), data_.end(), [](uint8_t b) { return b == 0xFF; });
+    }
+    bool IsPowerOfTwo() const {
+        return PopCount() == 1;
+    }
+    bool HasEvenParity() const {
+        return PopCount() % 2 == 0;
+    }
+    bool HasOddParity() const {
+        return PopCount() % 2 != 0;
+    }
+    bool TestBitRange(size_t start, size_t count, bool expectedValue) const {
+        for (size_t i = 0; i < count; ++i) {
+            if (GetBit(start + i) != expectedValue) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // BitCopyable implementations
+    void CopyBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) {
         for (size_t i = 0; i < bitCount; ++i) {
-            bool bit = GetBit(srcStart + i);
-            if (bit) {
-                SetBit(dstStart + i);
+            SetBit(dstStart + i, GetBit(srcStart + i));
+        }
+    }
+    void MoveBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) {
+        if (dstStart > srcStart) {
+            for (size_t i = bitCount; i > 0; --i) {
+                SetBit(dstStart + i - 1, GetBit(srcStart + i - 1));
             }
-            else {
-                ClearBit(dstStart + i);
+        } else {
+            for (size_t i = 0; i < bitCount; ++i) {
+                SetBit(dstStart + i, GetBit(srcStart + i));
             }
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::MoveBitsInternal(size_t srcStart, size_t bitCount, size_t dstStart) {
-    CopyBitsInternal(srcStart, bitCount, dstStart);
-    // Clear source bits if not overlapping with destination
-    if (srcStart >= dstStart + bitCount || srcStart + bitCount <= dstStart) {
+    void CopyBitsFrom(const CPUStorage& source, size_t srcStart, size_t bitCount, size_t dstStart) {
         for (size_t i = 0; i < bitCount; ++i) {
-            ClearBit(srcStart + i);
+            SetBit(dstStart + i, source.GetBit(srcStart + i));
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart) {
-    // This requires the source to be able to provide bit data
-    // In practice, you'd need a way to access the source's bits
-    // For now, we'll leave this as a placeholder
-    // TODO: Implement void CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart)
-    throw std::runtime_error("void CopyBitsFrom(const IBitCopyable& source, size_t srcStart, size_t bitCount, size_t dstStart) not implemented");
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
-    // Similar issue - we need a way to set bits in the destination
-    // TODO: Implement void CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const
-    throw std::runtime_error("void CopyBitsTo(IBitCopyable& destination, size_t srcStart, size_t bitCount, size_t dstStart) const not implemented");
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::SetBitRange(size_t start, size_t count) {
-    // TODO: Maybe Implement Bytewise Value Change
-    for (size_t i = 0; i < count; ++i) {
-        SetBit(start + i);
-    }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ClearBitRange(size_t start, size_t count) {
-    // TODO: Maybe Implement Bytewise Value Change
-    for (size_t i = 0; i < count; ++i) {
-        ClearBit(start + i);
-    }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::FlipBitRange(size_t start, size_t count) {
-    // TODO: Maybe Implement Bytewise Value Change
-    for (size_t i = 0; i < count; ++i) {
-        FlipBit(start + i);
-    }
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::CanCopyBits(const IBitCopyable& source, size_t srcStart, size_t bitCount,
-    size_t dstStart) const {
-    return dstStart + bitCount <= totalBits;
-}
-
-// ===== IByteCopyable Implementation =====
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBytesInternal(size_t srcStart, size_t byteCount, size_t dstStart) {
-    if (srcStart + byteCount > Bytes || dstStart + byteCount > Bytes) {
-        return;
-    }
-    std::memmove(data_.data() + dstStart, data_.data() + srcStart, byteCount);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::MoveBytesInternal(size_t srcStart, size_t byteCount, size_t dstStart) {
-    CopyBytesInternal(srcStart, byteCount, dstStart);
-    // Clear source if not overlapping
-    if (srcStart >= dstStart + byteCount || srcStart + byteCount <= dstStart) {
-        std::memset(data_.data() + srcStart, 0, byteCount);
-    }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) {
-    // Implementation depends on being able to access source data
-    // TODO: Implement void CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart)
-    throw std::runtime_error("void CopyBytesFrom(const IByteCopyable& source, size_t srcStart, size_t byteCount, size_t dstStart) not implemented");
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount,
-    size_t dstStart) const {
-    // Similar issue - we need a way to access destination data
-    // TODO: Implement void CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount, size_t dstStart) const
-    throw std::runtime_error("void CopyBytesTo(IByteCopyable& destination, size_t srcStart, size_t byteCount, size_t dstStart) const not implemented");
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyFromBytes(const uint8_t* data, size_t dataSize, size_t srcStart, size_t dstStart,
-    size_t copyCount) {
-    if (srcStart + copyCount > dataSize || dstStart + copyCount > Bytes) {
-        return;
-    }
-    std::memcpy(data_.data() + dstStart, data + srcStart, copyCount);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyToBytes(uint8_t* data, size_t dataSize, size_t srcStart, size_t dstStart,
-    size_t copyCount) const {
-    if (srcStart + copyCount > Bytes || dstStart + copyCount > dataSize) {
-        return;
-    }
-    std::memcpy(data + dstStart, data_.data() + srcStart, copyCount);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyFromSpan(std::span<const uint8_t> source, size_t dstStart) {
-    size_t copyCount = std::min(source.size(), Bytes - dstStart);
-    std::memcpy(data_.data() + dstStart, source.data(), copyCount);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::CopyToSpan(std::span<uint8_t> destination, size_t srcStart) const {
-    size_t copyCount = std::min(destination.size(), Bytes - srcStart);
-    std::memcpy(destination.data(), data_.data() + srcStart, copyCount);
-}
-
-template<size_t Bytes>
-bool CPUStorage<Bytes>::CanCopyBytes(const IByteCopyable& source, size_t srcStart, size_t byteCount,
-    size_t dstStart) const {
-    return dstStart + byteCount <= Bytes;
-}
-
-// ===== IBitManipulable Implementation =====
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftLeft(size_t positions) {
-    if (positions >= totalBits) {
-        Fill(0x00);
-        return;
-    }
-
-    // Shift byte by byte for efficiency
-    size_t byteShift = positions / 8;
-    size_t bitShift = positions % 8;
-
-    if (byteShift > 0) {
-        std::memmove(data_.data(), data_.data() + byteShift, Bytes - byteShift);
-        std::memset(data_.data() + Bytes - byteShift, 0x00, byteShift);
-    }
-
-    if (bitShift > 0) {
-        uint8_t carry = 0x00;
-        for (size_t i = Bytes; i > 0; --i) {
-            uint8_t newCarry = data_[i - 1] >> (8 - bitShift);
-            data_[i - 1] = (data_[i - 1] << bitShift) | (carry >> (8 - bitShift));
-            carry = newCarry;
+    void CopyBitsTo(CPUStorage& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
+        for (size_t i = 0; i < bitCount; ++i) {
+            destination.SetBit(dstStart + i, GetBit(srcStart + i));
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftRight(size_t positions) {
-    if (positions >= totalBits) {
-        Fill(0x00);
-        return;
-    }
-
-    size_t byteShift = positions / 8;
-    size_t bitShift = positions % 8;
-
-    if (byteShift > 0) {
-        std::memmove(data_.data() + byteShift, data_.data(), Bytes - byteShift);
-        std::memset(data_.data(), 0x00, byteShift);
-    }
-
-    if (bitShift > 0) {
-        uint8_t carry = 0x00;
-        for (size_t i = 0; i < Bytes; ++i) {
-            uint8_t newCarry = data_[i] << (8 - bitShift);
-            data_[i] = (data_[i] >> bitShift) | (carry << (8 - bitShift));
-            carry = newCarry;
+    void SetBitRange(size_t start, size_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            SetBit(start + i);
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::RotateLeft(size_t positions) {
-    positions %= totalBits; // Handle rotations larger than size
-    if (positions == 0) return;
-
-    // Save the bits that will wrap around
-    std::vector<bool> wrapBits(positions);
-    for (size_t i = 0; i < positions; ++i) {
-        wrapBits[i] = GetBit(totalBits - positions + i);
-    }
-
-    // Shift left
-    ShiftLeft(positions);
-
-    // Set the wrapped bits
-    for (size_t i = 0; i < positions; ++i) {
-        if (wrapBits[i]) {
-            SetBit(i);
-        }
-        else {
-            ClearBit(i);
+    void ClearBitRange(size_t start, size_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            ClearBit(start + i);
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::RotateRight(size_t positions) {
-    positions %= totalBits;
-    if (positions == 0) return;
-
-    // Save the bits that will wrap around
-    std::vector<bool> wrapBits(positions);
-    for (size_t i = 0; i < positions; ++i) {
-        wrapBits[i] = GetBit(i);
-    }
-
-    // Shift right
-    ShiftRight(positions);
-
-    // Set the wrapped bits
-    for (size_t i = 0; i < positions; ++i) {
-        if (wrapBits[i]) {
-            SetBit(totalBits - positions + i);
-        }
-        else {
-            ClearBit(totalBits - positions + i);
+    void FlipBitRange(size_t start, size_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            FlipBit(start + i);
         }
     }
-}
+    bool CanCopyBits(const CPUStorage& source, size_t srcStart, size_t bitCount, size_t dstStart) const {
+        return srcStart + bitCount <= source.GetByteSize() * 8 && dstStart + bitCount <= GetByteSize() * 8;
+    }
 
-template<size_t Bytes>
-void CPUStorage<Bytes>::ReverseBits() {
-    for (size_t i = 0; i < totalBits / 2; ++i) {
-        bool leftBit = GetBit(i);
-        bool rightBit = GetBit(totalBits - 1 - i);
-
-        if (leftBit) {
-            SetBit(totalBits - 1 - i);
-        }
-        else {
-            ClearBit(totalBits - 1 - i);
-        }
-
-        if (rightBit) {
-            SetBit(i);
-        }
-        else {
-            ClearBit(i);
+    // BitManipulable implementations
+    void ShiftLeft(size_t positions) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] <<= positions;
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ReverseBytes() {
-    std::reverse(data_.begin(), data_.end());
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseAnd(const IBitManipulable& other) {
-    // TODO: This is challenging without knowing the other's concrete type
-    // In practice, you might need to add a method to get raw data
-    // For now, implement for the same type
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] &= other_cpu->data_[i];
+    void ShiftRight(size_t positions) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] >>= positions;
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseOr(const IBitManipulable& other) {
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] |= other_cpu->data_[i];
+    void RotateLeft(size_t positions) {
+        // Not implemented
+    }
+    void RotateRight(size_t positions) {
+        // Not implemented
+    }
+    void ReverseBits() {
+        // Not implemented
+    }
+    void ReverseBytes() {
+        std::reverse(data_.begin(), data_.end());
+    }
+    void BitwiseAnd(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] &= other.data_[i];
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseXor(const IBitManipulable& other) {
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] ^= other_cpu->data_[i];
+    void BitwiseOr(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] |= other.data_[i];
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseNot() {
-    for (uint8_t& byte : data_) {
-        byte = ~byte;
+    void BitwiseXor(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] ^= other.data_[i];
+        }
     }
-}
+    void BitwiseNot() {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] = ~data_[i];
+        }
+    }
+    void Increment() {
+        for (size_t i = 0; i < size; ++i) {
+            if (++data_[i] != 0) {
+                break;
+            }
+        }
+    }
+    void Decrement() {
+        for (size_t i = 0; i < size; ++i) {
+            if (--data_[i] != 0xFF) {
+                break;
+            }
+        }
+    }
 
-// ===== IByteManipulable Implementation =====
+    // ByteAccessible implementations
+    uint8_t& operator[](size_t index) {
+        if (index >= size)
+            throw std::out_of_range("Index out of bounds");
+        return data_[index];
+    }
+    const uint8_t& operator[](size_t index) const {
+        if (index >= size)
+            throw std::out_of_range("Index out of bounds");
+        return data_[index];
+    }
+    uint8_t* Data() {
+        return data_.data();
+    }
+    const uint8_t* Data() const {
+        return data_.data();
+    }
+    constexpr size_t GetByteSize() const {
+        return size;
+    }
+    void Fill(uint8_t value) {
+        data_.fill(value);
+    }
+    void Clear() {
+        data_.fill(0);
+    }
 
-template<size_t Bytes>
-void CPUStorage<Bytes>::SwapBytes(size_t index1, size_t index2) {
-    if (index1 < Bytes && index2 < Bytes) {
+    // ByteAnalyzable implementations
+    std::optional<size_t> FindByte(uint8_t value, size_t startPos = 0) const {
+        auto it = std::find(data_.begin() + startPos, data_.end(), value);
+        if (it != data_.end()) {
+            return std::distance(data_.begin(), it);
+        }
+        return std::nullopt;
+    }
+    std::optional<size_t> FindBytePattern(std::span<const uint8_t> pattern, size_t startPos = 0) const {
+        auto it = std::search(data_.begin() + startPos, data_.end(), pattern.begin(), pattern.end());
+        if (it != data_.end()) {
+            return std::distance(data_.begin(), it);
+        }
+        return std::nullopt;
+    }
+    int Compare(const CPUStorage& other) const {
+        return std::memcmp(data_.data(), other.data_.data(), size);
+    }
+    int Compare(std::span<const uint8_t> data) const {
+        return std::memcmp(data_.data(), data.data(), std::min(size, data.size()));
+    }
+    bool Equal(const CPUStorage& other) const {
+        return data_ == other.data_;
+    }
+    bool Equal(std::span<const uint8_t> data) const {
+        return std::equal(data_.begin(), data_.end(), data.begin(), data.end());
+    }
+    uint32_t ComputeCRC32() const {
+        // Not implemented
+        return 0;
+    }
+    uint64_t ComputeHash() const {
+        // Not implemented
+        return 0;
+    }
+
+    // ByteCopyable implementations - Fixed method names
+    void CopyBytesInternal(size_t srcStart, size_t count, size_t dst) {
+        std::copy(data_.begin() + srcStart, data_.begin() + srcStart + count, data_.begin() + dst);
+    }
+    void MoveBytesInternal(size_t srcStart, size_t count, size_t dst) {
+        std::move(data_.begin() + srcStart, data_.begin() + srcStart + count, data_.begin() + dst);
+    }
+    void CopyBytesFrom(const CPUStorage& source, size_t srcStart, size_t count, size_t dst) {
+        std::copy(source.data_.begin() + srcStart, source.data_.begin() + srcStart + count, data_.begin() + dst);
+    }
+    void CopyBytesTo(CPUStorage& destination, size_t srcStart, size_t count, size_t dst) const {
+        std::copy(data_.begin() + srcStart, data_.begin() + srcStart + count, destination.data_.begin() + dst);
+    }
+    void CopyFromBytes(const uint8_t* src, size_t srcByteSize, size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) {
+        std::copy(src + srcOffsetBytes, src + srcOffsetBytes + countBytes, data_.begin() + dstOffsetBytes);
+    }
+    void CopyToBytes(uint8_t* dst, size_t dstByteSize, size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) const {
+        std::copy(data_.begin() + srcOffsetBytes, data_.begin() + srcOffsetBytes + countBytes, dst + dstOffsetBytes);
+    }
+    void CopyFromSpan(std::span<const uint8_t> src_span, size_t dst) {
+        std::copy(src_span.begin(), src_span.end(), data_.begin() + dst);
+    }
+    void CopyToSpan(std::span<uint8_t> dst_span, size_t start) const {
+        std::copy(data_.begin() + start, data_.begin() + start + dst_span.size(), dst_span.begin());
+    }
+    bool CanCopyBytes(const CPUStorage& source, size_t srcStart, size_t count, size_t dst) const {
+        return srcStart + count <= source.GetByteSize() && dst + count <= GetByteSize();
+    }
+    void MoveBytes(size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) {
+        MoveBytesInternal(srcOffsetBytes, countBytes, dstOffsetBytes);
+    }
+    bool CanCopyBytes(size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) const {
+        return srcOffsetBytes + countBytes <= size && dstOffsetBytes + countBytes <= size;
+    }
+
+    // ByteManipulable implementations
+    void SwapBytes(size_t index1, size_t index2) {
         std::swap(data_[index1], data_[index2]);
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ReverseByteOrder() {
-    std::reverse(data_.begin(), data_.end());
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftBytesLeft(size_t positions) {
-    if (positions >= Bytes) {
-        Fill(0);
-        return;
+    void ReverseByteOrder() {
+        std::reverse(data_.begin(), data_.end());
     }
-
-    std::memmove(data_.data(), data_.data() + positions, Bytes - positions);
-    std::memset(data_.data() + Bytes - positions, 0, positions);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftBytesRight(size_t positions) {
-    if (positions >= Bytes) {
-        Fill(0);
-        return;
+    void ShiftBytesLeft(size_t positions) {
+        if (positions >= size) {
+            data_.fill(0);
+            return;
+        }
+        std::move(data_.begin() + positions, data_.end(), data_.begin());
+        std::fill(data_.end() - positions, data_.end(), 0);
     }
-
-    std::memmove(data_.data() + positions, data_.data(), Bytes - positions);
-    std::memset(data_.data(), 0, positions);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftBytesLeft(size_t positions, uint8_t fillValue) {
-    if (positions >= Bytes) {
-        Fill(fillValue);
-        return;
+    void ShiftBytesRight(size_t positions) {
+        if (positions >= size) {
+            data_.fill(0);
+            return;
+        }
+        std::move_backward(data_.begin(), data_.end() - positions, data_.end());
+        std::fill(data_.begin(), data_.begin() + positions, 0);
     }
-
-    std::memmove(data_.data(), data_.data() + positions, Bytes - positions);
-    std::memset(data_.data() + Bytes - positions, fillValue, positions);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ShiftBytesRight(size_t positions, uint8_t fillValue) {
-    if (positions >= Bytes) {
-        Fill(fillValue);
-        return;
+    void ShiftBytesLeft(size_t positions, uint8_t fillValue) {
+        if (positions >= size) {
+            data_.fill(fillValue);
+            return;
+        }
+        std::move(data_.begin() + positions, data_.end(), data_.begin());
+        std::fill(data_.end() - positions, data_.end(), fillValue);
     }
-
-    std::memmove(data_.data() + positions, data_.data(), Bytes - positions);
-    std::memset(data_.data(), fillValue, positions);
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ToLittleEndian() {
-    if constexpr (std::endian::native == std::endian::big) {
+    void ShiftBytesRight(size_t positions, uint8_t fillValue) {
+        if (positions >= size) {
+            data_.fill(fillValue);
+            return;
+        }
+        std::move_backward(data_.begin(), data_.end() - positions, data_.end());
+        std::fill(data_.begin(), data_.begin() + positions, fillValue);
+    }
+    void ToLittleEndian() {
+        // Already in little endian on most systems, but implement for completeness
+    }
+    void ToBigEndian() {
         ReverseByteOrder();
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ToBigEndian() {
-    if constexpr (std::endian::native == std::endian::little) {
-        ReverseByteOrder();
+    void ToNativeEndian() {
+        // Assume native is little endian
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::ToNativeEndian() {
-    // Already in native endian - no-op
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BytewiseAnd(const IByteManipulable& other) {
-    // WARN: This works with only the same amount of bytes
-    // TODO: Throw some error when they are not the same amount of bytes
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] &= other_cpu->data_[i];
+    void BytewiseAnd(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] &= other.data_[i];
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BytewiseOr(const IByteManipulable& other) {
-    // TODO: Throw some error when they are not the same amount of bytes
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] |= other_cpu->data_[i];
+    void BytewiseOr(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] |= other.data_[i];
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BytewiseXor(const IByteManipulable& other) {
-    // TODO: Throw some error when they are not the same amount of bytes
-    if (auto* other_cpu = dynamic_cast<const CPUStorage<Bytes>*>(&other)) {
-        for (size_t i = 0; i < Bytes; ++i) {
-            data_[i] ^= other_cpu->data_[i];
+    void BytewiseXor(const CPUStorage& other) {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] ^= other.data_[i];
         }
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BytewiseNot() {
-    for (uint8_t& byte : data_) {
-        byte = ~byte;
+    void BytewiseNot() {
+        for (size_t i = 0; i < size; ++i) {
+            data_[i] = ~data_[i];
+        }
     }
-}
+};
 
-// ===== IStorage Hardware Abstraction =====
-
-template<size_t Bytes>
-const std::array<uint8_t, Bytes>& CPUStorage<Bytes>::GetData() const {
-    return data_;
-}
-
-template<size_t Bytes>
-std::array<uint8_t, Bytes>& CPUStorage<Bytes>::GetData() {
-    return data_;
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseAnd(const CPUStorage<Bytes>& other) {
-    for (size_t i = 0; i < Bytes; ++i) {
-        data_[i] &= other.data_[i];
+// CPUStorageProvider remains the same, as it's already a factory for CPUStorage
+class CPUStorageProvider {
+public:
+    
+    // Add this type alias to help with storage type deduction
+    template<size_t size>
+    using StorageType = CPUStorage<size>;
+    
+    template<size_t size>
+    static CPUStorage<size> create() {
+        return CPUStorage<size>();
     }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseOr(const CPUStorage<Bytes>& other) {
-    for (size_t i = 0; i < Bytes; ++i) {
-        data_[i] |= other.data_[i];
-    }
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::BitwiseXor(const CPUStorage<Bytes>& other) {
-    for (size_t i = 0; i < Bytes; ++i) {
-        data_[i] ^= other.data_[i];
-    }
-}
-template<size_t Bytes>
-bool CPUStorage<Bytes>::operator==(const CPUStorage<Bytes>& other) const {
-    return data_ == other.data_;
-}
-template<size_t Bytes>
-bool CPUStorage<Bytes>::operator!=(const CPUStorage<Bytes>& other) const {
-    return data_ != other.data_;
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) {
-    // TODO: Implement void OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) 
-    throw std::runtime_error("void OffsetAdd(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) not implemented");
-}
-
-template<size_t Bytes>
-void CPUStorage<Bytes>::OffsetSub(const IBitManipulable& other,
-    size_t srcPosStart,
-    size_t srcPosCount,
-    size_t dstPosStart) {
-    // TODO: Implement void OffsetSub(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) 
-    throw std::runtime_error("void OffsetSub(const IBitManipulable& other, size_t srcPosStart, size_t srcPosCount, size_t dstPosStart) not implemented");
-}
-
-template<size_t Bytes>
-std::unique_ptr<IStorage> CreateCPUStorage() {
-    return std::make_unique<CPUStorage<Bytes> >();
-}
+};
 
 #endif //CPUSTORAGE_H

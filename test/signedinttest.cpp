@@ -4,10 +4,21 @@
 
 #include <cstdint>
 #include <span>
+#include <gtest/gtest.h>
 
 #include "ArbitrarySignedInt.h"
 #include "storage/CPUStorage.h"
-int main() {
-    ArbitrarySignedInt<16, 0, CPUMemoryPlace> a = 127;
-    std::cout << a;
+
+TEST(ArbitrarySignedIntTest, BasicConstruction) {
+    ArbitrarySignedInt<8, 0, CPUStorageProvider> a;
+    ASSERT_EQ(a, 0);
+
+    ArbitrarySignedInt<16, 0, CPUStorageProvider> b(127);
+    ASSERT_EQ(b, 127);
+
+    ArbitrarySignedInt<32, 0, CPUStorageProvider> c(-127);
+    ASSERT_EQ(c, -127);
+
+    ArbitrarySignedInt<64, 0, CPUStorageProvider> d("12345");
+    ASSERT_EQ(d, 12345);
 }
