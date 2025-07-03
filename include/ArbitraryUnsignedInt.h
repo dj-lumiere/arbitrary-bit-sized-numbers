@@ -43,13 +43,15 @@ public:
 
     // Constructor from integral types
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
-    explicit ArbitraryUnsignedInt(T value);
+    ArbitraryUnsignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
-    explicit ArbitraryUnsignedInt(const char* str, int base = 10) {
-        ArbitraryUnsignedInt(std::string(str), base);
+    ArbitraryUnsignedInt(const char* str, int base = 10) 
+        : ArbitraryUnsignedInt(std::string(str), base)  // ← Correct delegating constructor
+    {
+        // Body can be empty
     }
-    explicit ArbitraryUnsignedInt(const std::string& str, int base = 10);
+    ArbitraryUnsignedInt(const std::string& str, int base = 10);
 
     // Assignment operators
     ArbitraryUnsignedInt& operator=(const ArbitraryUnsignedInt& other) = default;
@@ -321,7 +323,7 @@ ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ArbitraryUnsigned
         throw std::invalid_argument("Invalid base");
     }
     // Clear the storage first
-    *this = ArbitraryUnsignedInt(0);
+    storage_.Clear();
 
     // Convert base to ArbitraryUnsignedInt
     ArbitraryUnsignedInt base_value(base);
