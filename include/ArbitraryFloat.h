@@ -47,6 +47,11 @@ public:
     explicit ArbitraryFloat(T value);
 
     // Constructor from string
+    explicit ArbitraryFloat(const char* str)
+        : ArbitraryFloat(std::string(str)) // ← Correct delegating constructor
+    {
+        // Body can be empty
+    }
     explicit ArbitraryFloat(const std::string& str);
 
     // Constructor from arbitrary integers

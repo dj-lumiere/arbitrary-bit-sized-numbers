@@ -45,6 +45,11 @@ public:
     ArbitrarySignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
+    ArbitrarySignedInt(const char* str, int base = 10)
+        : ArbitrarySignedInt(std::string(str), base) // ← Correct delegating constructor
+    {
+        // Body can be empty
+    }
     explicit ArbitrarySignedInt(const std::string& str, int base = 10);
 
     // Assignment operators
