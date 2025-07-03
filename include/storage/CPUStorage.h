@@ -18,6 +18,7 @@ template<size_t size>
 class CPUStorage {
 public:
     std::array<uint8_t, size> data_;
+    static constexpr size_t totalBits = size << 3;
 
     CPUStorage() {
         data_.fill(0);
@@ -231,23 +232,109 @@ public:
 
     // BitManipulable implementations
     void ShiftLeft(size_t positions) {
-        for (size_t i = 0; i < size; ++i) {
-            data_[i] <<= positions;
+        if (positions == 0) {
+            return;
         }
+
+        size_t byteOffset = positions >> 3;
+        size_t bitOffset = positions & 7;
+        ShiftBytesLeft(byteOffset);
+        if (bitOffset == 0) {
+            return;
+        }
+        // Process from HIGH to LOW bytes (right to left)
+        for (size_t i = size - 1; i > 0; --i) {
+            data_[i] <<= bitOffset;
+            data_[i] |= data_[i - 1] >> (8 - bitOffset); // Get carry from lower byte
+        }
+        // Handle the lowest byte (no carry from below)
+        data_[0] <<= bitOffset;
     }
     void ShiftRight(size_t positions) {
-        for (size_t i = 0; i < size; ++i) {
-            data_[i] >>= positions;
+        if (positions == 0) {
+            return;
         }
+
+        size_t byteOffset = positions >> 3;
+        size_t bitOffset = positions & 7;
+        ShiftBytesRight(byteOffset);
+        if (bitOffset == 0) {
+            return;
+        }
+        for (size_t i = 0; i < size - 1; ++i) {
+            data_[i] >>= bitOffset;
+            data_[i] |= data_[i + 1] << (8 - bitOffset);
+        }
+        // Handle the highest byte (no carry from above)
+        data_[size - 1] >>= bitOffset;
     }
     void RotateLeft(size_t positions) {
-        // Not implemented
+        positions %= totalBits; // Handle rotations larger than size
+        if (positions == 0)
+            return;
+
+        // Save the bits that will wrap around
+        std::vector<bool> wrapBits(positions);
+        for (size_t i = 0; i < positions; ++i) {
+            wrapBits[i] = GetBit(totalBits - positions + i);
+        }
+
+        // Shift left
+        ShiftLeft(positions);
+
+        // Set the wrapped bits
+        for (size_t i = 0; i < positions; ++i) {
+            if (wrapBits[i]) {
+                SetBit(i);
+            }
+            else {
+                ClearBit(i);
+            }
+        }
     }
     void RotateRight(size_t positions) {
-        // Not implemented
+        positions %= totalBits;
+        if (positions == 0)
+            return;
+
+        // Save the bits that will wrap around
+        std::vector<bool> wrapBits(positions);
+        for (size_t i = 0; i < positions; ++i) {
+            wrapBits[i] = GetBit(i);
+        }
+
+        // Shift right
+        ShiftRight(positions);
+
+        // Set the wrapped bits
+        for (size_t i = 0; i < positions; ++i) {
+            if (wrapBits[i]) {
+                SetBit(totalBits - positions + i);
+            }
+            else {
+                ClearBit(totalBits - positions + i);
+            }
+        }
     }
     void ReverseBits() {
-        // Not implemented
+        for (size_t i = 0; i < totalBits / 2; ++i) {
+            bool leftBit = GetBit(i);
+            bool rightBit = GetBit(totalBits - 1 - i);
+
+            if (leftBit) {
+                SetBit(totalBits - 1 - i);
+            }
+            else {
+                ClearBit(totalBits - 1 - i);
+            }
+
+            if (rightBit) {
+                SetBit(i);
+            }
+            else {
+                ClearBit(i);
+            }
+        }
     }
     void ReverseBytes() {
         std::reverse(data_.begin(), data_.end());
