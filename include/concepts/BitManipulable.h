@@ -8,7 +8,7 @@
 #include "BitCopyable.h"
 
 template<typename T>
-concept BitManipulable = BitAnalyzable<T> && BitCopyable<T> && requires(T t, const T ct, size_t positions) {
+concept BitManipulable = BitAnalyzable<T> && BitCopyable<T> && requires(T t, const T ct, size_t positions, size_t offset, size_t bitWidth, size_t value, size_t srcStart, size_t srcWidth, size_t dstStart) {
     // Shifting and rotation
     { t.ShiftLeft(positions) } -> std::same_as<void>;
     { t.ShiftRight(positions) } -> std::same_as<void>;
@@ -28,6 +28,14 @@ concept BitManipulable = BitAnalyzable<T> && BitCopyable<T> && requires(T t, con
     // Arithmetic-style operations
     { t.Increment() } -> std::same_as<void>;
     { t.Decrement() } -> std::same_as<void>;
+    
+    // Simple offset arithmetic (most common use case)
+    { t.OffsetAdd(offset, bitWidth, value) } -> std::same_as<void>;
+    { t.OffsetSub(offset, bitWidth, value) } -> std::same_as<void>;
+    
+    // Range-to-range arithmetic (advanced operations)
+    { t.OffsetAdd(ct, srcStart, srcWidth, dstStart) } -> std::same_as<void>;
+    { t.OffsetSub(ct, srcStart, srcWidth, dstStart) } -> std::same_as<void>;
 };
 
 #endif //BITMANIPULABLE_H

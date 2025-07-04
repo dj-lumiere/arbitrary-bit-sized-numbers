@@ -373,6 +373,78 @@ public:
             }
         }
     }
+    void OffsetAdd(size_t offset, size_t bitWidth, size_t value) {
+        if (offset + bitWidth > totalBits) {
+            throw std::out_of_range("Bit range out of bounds in OffsetAdd");
+        }
+
+        bool carry = false;
+        for (size_t i = 0; i < bitWidth; ++i) {
+            bool current_bit = GetBit(offset + i);
+            bool value_bit = (value >> i) & 1;
+
+            bool sum_bit = current_bit ^ value_bit ^ carry;
+            carry = (current_bit && value_bit) || (current_bit && carry) || (value_bit && carry);
+
+            SetBit(offset + i, sum_bit);
+        }
+    }
+    void OffsetSub(size_t offset, size_t bitWidth, size_t value) {
+        if (offset + bitWidth > totalBits) {
+            throw std::out_of_range("Bit range out of bounds in OffsetSub");
+        }
+
+        bool borrow = false;
+        for (size_t i = 0; i < bitWidth; ++i) {
+            bool current_bit = GetBit(offset + i);
+            bool value_bit = (value >> i) & 1;
+
+            bool diff_bit = current_bit ^ value_bit ^ borrow;
+            borrow = (!current_bit && value_bit) || (!current_bit && borrow) || (value_bit && borrow);
+
+            SetBit(offset + i, diff_bit);
+        }
+    }
+    void OffsetAdd(const CPUStorage& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
+        if (srcStart + srcWidth > ct.totalBits) {
+            throw std::out_of_range("Source bit range out of bounds in OffsetAdd (CPUStorage overload)");
+        }
+
+        bool carry = false;
+        for (size_t i = 0; i < srcWidth; ++i) {
+            if (dstStart + i >= totalBits) {
+                // Discard leftover bits
+                break;
+            }
+            bool current_dst_bit = GetBit(dstStart + i);
+            bool src_bit = ct.GetBit(srcStart + i);
+
+            bool sum_bit = current_dst_bit ^ src_bit ^ carry;
+            carry = (current_dst_bit && src_bit) || (current_dst_bit && carry) || (src_bit && carry);
+
+            SetBit(dstStart + i, sum_bit);
+        }
+    }
+    void OffsetSub(const CPUStorage& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
+        if (srcStart + srcWidth > ct.totalBits) {
+            throw std::out_of_range("Source bit range out of bounds in OffsetSub (CPUStorage overload)");
+        }
+
+        bool borrow = false;
+        for (size_t i = 0; i < srcWidth; ++i) {
+            if (dstStart + i >= totalBits) {
+                // Discard leftover bits
+                break;
+            }
+            bool current_dst_bit = GetBit(dstStart + i);
+            bool src_bit = ct.GetBit(srcStart + i);
+
+            bool diff_bit = current_dst_bit ^ src_bit ^ borrow;
+            borrow = (!current_dst_bit && src_bit) || (!current_dst_bit && borrow) || (src_bit && borrow);
+
+            SetBit(dstStart + i, diff_bit);
+        }
+    }
 
     // ByteAccessible implementations
     uint8_t& operator[](size_t index) {
