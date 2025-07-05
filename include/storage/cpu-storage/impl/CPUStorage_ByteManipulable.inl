@@ -38,7 +38,7 @@ void CPUStorage<size>::ShiftBytesRight(size_t positions) {
 
 template<size_t size>
 void CPUStorage<size>::ShiftBytesLeft(size_t positions, uint8_t fillValue) {
-    if (positions >= size) {.
+    if (positions >= size) {
         data_.fill(fillValue);
         return;
     }
