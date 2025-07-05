@@ -12,9 +12,9 @@
 #include <optional>
 #include <cstdint>
 
-#include "ArbitrarySignedInt.h"
-#include "ArbitraryUnsignedInt.h"
-#include "../include/concepts/StorageProvider.h"
+#include "../signed-int/ArbitrarySignedInt.h"
+#include "../unsigned-int/ArbitraryUnsignedInt.h"
+#include "../../concepts/StorageProvider.h"
 
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 /**
@@ -82,8 +82,8 @@ public:
     explicit operator unsigned char() const;
     explicit operator bool() const;
 
-    template<size_t NewExp, size_t NewMant, typename NewStorageProvider>
-    explicit operator ArbitraryFloat<NewExp, NewMant, NewStorageProvider>() const;
+    template<size_t NewExp, size_t NewMant, typename NewStorageProviderType>
+    explicit operator ArbitraryFloat<NewExp, NewMant, NewStorageProviderType>() const;
 
     // ===== UNARY OPERATORS =====
     ArbitraryFloat operator+() const; // unary plus
@@ -128,18 +128,18 @@ public:
     void SetSignBit(bool sign);
 
     // Get exponent (raw and biased)
-    template<size_t ExpSize = ExpBits, size_t ExpOffset = 0, typename ExpStorageProvider = StorageProviderType>
-    ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpStorageProvider> GetRawExponent() const;
+    template<size_t ExpSize = ExpBits, size_t ExpOffset = 0, typename ExpStorageProviderType = StorageProviderType>
+    ArbitraryUnsignedInt<ExpSize, ExpOffset, ExpStorageProviderType> GetRawExponent() const;
 
-    template<size_t ExpSize = ExpBits + 1, size_t ExpOffset = 0, typename ExpStorageProvider = StorageProviderType>
-    ArbitrarySignedInt<ExpSize, ExpOffset, ExpStorageProvider> GetExponent() const;
+    template<size_t ExpSize = ExpBits + 1, size_t ExpOffset = 0, typename ExpStorageProviderType = StorageProviderType>
+    ArbitrarySignedInt<ExpSize, ExpOffset, ExpStorageProviderType> GetExponent() const;
 
     // Get mantissa/significand
-    template<size_t MantSize, size_t MantOffset = 0, typename MantStorageProvider = StorageProviderType>
-    ArbitraryUnsignedInt<MantSize, MantOffset, MantStorageProvider> GetMantissa() const;
+    template<size_t MantSize, size_t MantOffset = 0, typename MantStorageProviderType = StorageProviderType>
+    ArbitraryUnsignedInt<MantSize, MantOffset, MantStorageProviderType> GetMantissa() const;
 
-    template<size_t MantSize, size_t MantOffset = 0, typename MantStorageProvider = StorageProviderType>
-    ArbitraryUnsignedInt<MantSize, MantOffset, MantStorageProvider> GetSignificand() const;
+    template<size_t MantSize, size_t MantOffset = 0, typename MantStorageProviderType = StorageProviderType>
+    ArbitraryUnsignedInt<MantSize, MantOffset, MantStorageProviderType> GetSignificand() const;
 
     // ===== STRING REPRESENTATIONS =====
     std::string ToString() const;
@@ -150,11 +150,11 @@ public:
     std::string ToScientificString(int precision) const;
 
     // ===== CONVERSION TO INTEGER TYPES =====
-    template<size_t BitSize = 64, size_t BitOffset = 0, typename IntStorageProvider = StorageProviderType>
-    ArbitrarySignedInt<BitSize, BitOffset, IntStorageProvider> ToInt() const;
+    template<size_t BitSize = 64, size_t BitOffset = 0, typename IntStorageProviderType = StorageProviderType>
+    ArbitrarySignedInt<BitSize, BitOffset, IntStorageProviderType> ToInt() const;
 
-    template<size_t BitSize = 64, size_t BitOffset = 0, typename IntStorageProvider = StorageProviderType>
-    ArbitraryUnsignedInt<BitSize, BitOffset, IntStorageProvider> ToUInt() const;
+    template<size_t BitSize = 64, size_t BitOffset = 0, typename IntStorageProviderType = StorageProviderType>
+    ArbitraryUnsignedInt<BitSize, BitOffset, IntStorageProviderType> ToUInt() const;
 
     // ===== ROUNDING FUNCTIONS AS MEMBER METHODS =====
     ArbitraryFloat Ceil() const;
