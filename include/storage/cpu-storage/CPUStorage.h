@@ -241,17 +241,18 @@ public:
 
         size_t byteOffset = positions >> 3;
         size_t bitOffset = positions & 7;
+
+        if (bitOffset != 0) {
+            // Process from HIGH to LOW bytes (right to left)
+            for (size_t i = size - 1; i >= 1; --i) {
+                data_[i] <<= bitOffset;
+                data_[i] |= data_[i - 1] >> (8 - bitOffset); // Get carry from lower byte
+            }
+            // Handle the lowest byte (no carry from below)
+            data_[0] <<= bitOffset;
+        }
+
         ShiftBytesLeft(byteOffset);
-        if (bitOffset == 0) {
-            return;
-        }
-        // Process from HIGH to LOW bytes (right to left)
-        for (size_t i = size - 1; i > 0; --i) {
-            data_[i] <<= bitOffset;
-            data_[i] |= data_[i - 1] >> (8 - bitOffset); // Get carry from lower byte
-        }
-        // Handle the lowest byte (no carry from below)
-        data_[0] <<= bitOffset;
     }
     void ShiftRight(size_t positions) {
         if (positions == 0) {
@@ -564,32 +565,32 @@ public:
             data_.fill(0);
             return;
         }
-        std::move(data_.begin() + positions, data_.end(), data_.begin());
-        std::fill(data_.end() - positions, data_.end(), 0);
+        std::memmove(data_.data() + positions, data_.data(), size - positions);
+        std::memset(data_.data(), 0, positions);
     }
     void ShiftBytesRight(size_t positions) {
         if (positions >= size) {
             data_.fill(0);
             return;
         }
-        std::move_backward(data_.begin(), data_.end() - positions, data_.end());
-        std::fill(data_.begin(), data_.begin() + positions, 0);
+        std::memmove(data_.data(), data_.data() + positions, size - positions);
+        std::memset(data_.data() + size - positions, 0, positions);
     }
     void ShiftBytesLeft(size_t positions, uint8_t fillValue) {
         if (positions >= size) {
             data_.fill(fillValue);
             return;
         }
-        std::move(data_.begin() + positions, data_.end(), data_.begin());
-        std::fill(data_.end() - positions, data_.end(), fillValue);
+        std::memmove(data_.data() + positions, data_.data(), size - positions);
+        std::memset(data_.data(), fillValue, positions);
     }
     void ShiftBytesRight(size_t positions, uint8_t fillValue) {
         if (positions >= size) {
             data_.fill(fillValue);
             return;
         }
-        std::move_backward(data_.begin(), data_.end() - positions, data_.end());
-        std::fill(data_.begin(), data_.begin() + positions, fillValue);
+        std::memmove(data_.data(), data_.data() + positions, size - positions);
+        std::memset(data_.data() + size - positions, fillValue, positions);
     }
     void ToLittleEndian() {
         // Already in little endian on most systems, but implement for completeness
