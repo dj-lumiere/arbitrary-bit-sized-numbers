@@ -201,12 +201,14 @@ public:
             }
         }
     }
-    void CopyBitsFrom(const CPUStorage& source, size_t srcStart, size_t bitCount, size_t dstStart) {
+    template<size_t OtherSize>
+    void CopyBitsFrom(const CPUStorage<OtherSize>& source, size_t srcStart, size_t bitCount, size_t dstStart) {
         for (size_t i = 0; i < bitCount; ++i) {
             SetBit(dstStart + i, source.GetBit(srcStart + i));
         }
     }
-    void CopyBitsTo(CPUStorage& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
+    template<size_t OtherSize>
+    void CopyBitsTo(CPUStorage<OtherSize>& destination, size_t srcStart, size_t bitCount, size_t dstStart) const {
         for (size_t i = 0; i < bitCount; ++i) {
             destination.SetBit(dstStart + i, GetBit(srcStart + i));
         }
@@ -226,7 +228,8 @@ public:
             FlipBit(start + i);
         }
     }
-    bool CanCopyBits(const CPUStorage& source, size_t srcStart, size_t bitCount, size_t dstStart) const {
+    template<size_t OtherSize>
+    bool CanCopyBits(const CPUStorage<OtherSize>& source, size_t srcStart, size_t bitCount, size_t dstStart) const {
         return srcStart + bitCount <= source.GetByteSize() * 8 && dstStart + bitCount <= GetByteSize() * 8;
     }
 
@@ -518,10 +521,12 @@ public:
     void MoveBytesInternal(size_t srcStart, size_t count, size_t dst) {
         std::move(data_.begin() + srcStart, data_.begin() + srcStart + count, data_.begin() + dst);
     }
-    void CopyBytesFrom(const CPUStorage& source, size_t srcStart, size_t count, size_t dst) {
+    template<size_t OtherSize>
+    void CopyBytesFrom(const CPUStorage<OtherSize>& source, size_t srcStart, size_t count, size_t dst) {
         std::copy(source.data_.begin() + srcStart, source.data_.begin() + srcStart + count, data_.begin() + dst);
     }
-    void CopyBytesTo(CPUStorage& destination, size_t srcStart, size_t count, size_t dst) const {
+    template<size_t OtherSize>
+    void CopyBytesTo(CPUStorage<OtherSize>& destination, size_t srcStart, size_t count, size_t dst) const {
         std::copy(data_.begin() + srcStart, data_.begin() + srcStart + count, destination.data_.begin() + dst);
     }
     void CopyFromBytes(const uint8_t* src, size_t srcByteSize, size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) {
@@ -536,7 +541,8 @@ public:
     void CopyToSpan(std::span<uint8_t> dst_span, size_t start) const {
         std::copy(data_.begin() + start, data_.begin() + start + dst_span.size(), dst_span.begin());
     }
-    bool CanCopyBytes(const CPUStorage& source, size_t srcStart, size_t count, size_t dst) const {
+    template<size_t OtherSize>
+    bool CanCopyBytes(const CPUStorage<OtherSize>& source, size_t srcStart, size_t count, size_t dst) const {
         return srcStart + count <= source.GetByteSize() && dst + count <= GetByteSize();
     }
     void MoveBytes(size_t srcOffsetBytes, size_t dstOffsetBytes, size_t countBytes) {
