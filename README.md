@@ -1,5 +1,7 @@
 # Arbitrary Bit Width Numbers
 
+## Warning: This library is in development stage!
+
 A C++ library providing backend-agnostic arbitrary-precision arithmetic types with customizable bit widths and storage backends.
 
 ## Features
@@ -67,20 +69,20 @@ using QuadFloat = ArbitraryFloat<15, 112, CPUMemoryPlace>;
 
 ## Architecture
 
-### Interface Hierarchy
+### Concept Hierarchy
 
-The library is built on a modular interface system:
+The library is built on a modular concept system:
 
-- **IByteAccessible**: Basic byte-level access
-- **IBitAccessible**: Bit-level manipulation
-- **IByteAnalyzable**: Byte pattern analysis
-- **IBitAnalyzable**: Bit counting and pattern detection
-- **IStorage**: Combined storage interface
+- **ByteAccessible**: Basic byte-level access
+- **BitAccessible**: Bit-level manipulation
+- **ByteAnalyzable**: Byte pattern analysis
+- **BitAnalyzable**: Bit counting and pattern detection
+- **Storage**: Combined storage interface
 
 ### Storage Backends
 
 Currently implemented:
-- **CPUStorage**: Optimized for CPU operations with SIMD support
+- **CPUStorage**: Optimized for CPU operations
 - Extensible to custom backends (GPU, network, persistent storage, etc.)
 
 ## Building
@@ -175,3 +177,4 @@ MIT License
 - [ ] Python bindings
 - [ ] Performance benchmarking suite
 - [ ] Extended mathematical function library
+- [ ] Make it into C++ module
