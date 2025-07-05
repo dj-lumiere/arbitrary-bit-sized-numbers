@@ -405,7 +405,8 @@ public:
             SetBit(offset + i, diff_bit);
         }
     }
-    void OffsetAdd(const CPUStorage& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
+    template<size_t OtherSize>
+    void OffsetAdd(const CPUStorage<OtherSize>& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
         if (srcStart + srcWidth > ct.totalBits) {
             throw std::out_of_range("Source bit range out of bounds in OffsetAdd (CPUStorage overload)");
         }
@@ -425,7 +426,8 @@ public:
             SetBit(dstStart + i, sum_bit);
         }
     }
-    void OffsetSub(const CPUStorage& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
+    template<size_t OtherSize>
+    void OffsetSub(const CPUStorage<OtherSize>& ct, size_t srcStart, size_t srcWidth, size_t dstStart) {
         if (srcStart + srcWidth > ct.totalBits) {
             throw std::out_of_range("Source bit range out of bounds in OffsetSub (CPUStorage overload)");
         }

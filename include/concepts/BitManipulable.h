@@ -36,6 +36,12 @@ concept BitManipulable = BitAnalyzable<T> && BitCopyable<T> && requires(T t, con
     // Range-to-range arithmetic (advanced operations)
     { t.OffsetAdd(ct, srcStart, srcWidth, dstStart) } -> std::same_as<void>;
     { t.OffsetSub(ct, srcStart, srcWidth, dstStart) } -> std::same_as<void>;
+
+    // Arithmetic with carry/borrow
+    { t.OffsetAddWithCarry(offset, bitWidth, value, false) } -> std::same_as<std::pair<T, bool>>;
+    { t.OffsetSubWithBorrow(offset, bitWidth, value, false) } -> std::same_as<std::pair<T, bool>>;
+    { t.OffsetAddWithCarry(ct, srcStart, srcWidth, dstStart, false) } -> std::same_as<std::pair<T, bool>>;
+    { t.OffsetSubWithBorrow(ct, srcStart, srcWidth, dstStart, false) } -> std::same_as<std::pair<T, bool>>;
 };
 
 #endif //BITMANIPULABLE_H
