@@ -30,7 +30,7 @@ template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requ
 ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType> ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::Log1p() const {
 }
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
-ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType> ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::Logb(const ArbitraryFloat& y) const {
+ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType> ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::Logb(const ArbitraryFloat& b) const {
 }
 
 #endif //ARBITRARYFLOAT_EXPONENTIAL_LOGARITHMIC_INL
