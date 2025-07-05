@@ -12,7 +12,7 @@
 #include <iostream>
 #include <utility>
 
-#include "../../concepts/StorageProvider.h"
+#include <concepts/StorageProvider.h>
 
 // Forward declaration - don't include the header
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType>
@@ -311,6 +311,6 @@ using Int128 = ArbitrarySignedInt<128, 0, StorageProvider>;
 template<typename StorageProvider>
 using Int256 = ArbitrarySignedInt<256, 0, StorageProvider>;
 
-#include "core/signed-int/impl/ArbitrarySignedIntImpl.h"
+#include <core/signed-int/impl/ArbitrarySignedIntImpl.h>
 
 #endif //ARBITRARYSIGNEDINT_H

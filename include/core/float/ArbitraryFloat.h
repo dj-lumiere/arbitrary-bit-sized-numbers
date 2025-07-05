@@ -12,9 +12,13 @@
 #include <optional>
 #include <cstdint>
 
-#include "../signed-int/ArbitrarySignedInt.h"
-#include "../unsigned-int/ArbitraryUnsignedInt.h"
-#include "../../concepts/StorageProvider.h"
+#include <concepts/StorageProvider.h>
+
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType>
+class ArbitrarySignedInt;
+
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType>
+class ArbitraryUnsignedInt;
 
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 /**
@@ -368,8 +372,8 @@ private:
     static ArbitraryFloat FromComponents(bool sign, uint64_t exponent, uint64_t mantissa);
 };
 
-#include "impl/ArbitraryFloatImpl.h"
-#include "utility_ops/ArbitraryFloatUtilityOps.h"
+#include <core/float/impl/ArbitraryFloatImpl.h>
+#include <core/float/utility_ops/ArbitraryFloatUtilityOps.h>
 
 // Utility type aliases for common formats
 template<typename StorageProviderType>

@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
-#include "../include/core/unsigned-int/ArbitraryUnsignedInt.h"
-#include "../include/storage/cpu-storage/CPUStorage.h"
+#include <core/unsigned-int/ArbitraryUnsignedInt.h>
+#include <storage/cpu-storage/CPUStorage.h>
 #include <array>
 
 // Test fixture for ArbitraryUnsignedInt with a non-zero bit offset

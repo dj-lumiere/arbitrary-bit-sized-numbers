@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 6. 18.
 //
 #include <gtest/gtest.h>
-#include "../include/core/unsigned-int/ArbitraryUnsignedInt.h"
-#include "../include/storage/cpu-storage/CPUStorage.h"
+#include <core/unsigned-int/ArbitraryUnsignedInt.h>
+#include <storage/cpu-storage/CPUStorage.h>
 #include <array>
 
 class ArbitraryUnsignedIntTest : public ::testing::Test {

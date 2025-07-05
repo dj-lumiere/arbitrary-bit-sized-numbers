@@ -6,8 +6,8 @@
 #include <span>
 #include <gtest/gtest.h>
 
-#include "../include/core/signed-int/ArbitrarySignedInt.h"
-#include "../include/storage/cpu-storage/CPUStorage.h"
+#include <core/signed-int/ArbitrarySignedInt.h>
+#include <storage/cpu-storage/CPUStorage.h>
 
 TEST(ArbitrarySignedIntTest, BasicConstruction) {
     ArbitrarySignedInt<8, 0, CPUStorageProvider> a;

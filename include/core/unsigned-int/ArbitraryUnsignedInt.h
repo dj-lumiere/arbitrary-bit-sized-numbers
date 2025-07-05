@@ -12,7 +12,7 @@
 #include <iostream>
 #include <utility>
 
-#include "../../concepts/StorageProvider.h"
+#include <concepts/StorageProvider.h>
 
 // Forward declaration - don't include the header
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType>

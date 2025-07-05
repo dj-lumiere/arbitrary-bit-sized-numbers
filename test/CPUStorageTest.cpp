@@ -2,7 +2,7 @@
 // Created by Lumi on 25. 7. 4.
 //
 #include <gtest/gtest.h>
-#include "../include/storage/cpu-storage/CPUStorage.h"
+#include <storage/cpu-storage/CPUStorage.h>
 
 TEST(CPUStorageTest, OffsetAddAndSub) {
     // Test OffsetAdd(offset, bitWidth, value)

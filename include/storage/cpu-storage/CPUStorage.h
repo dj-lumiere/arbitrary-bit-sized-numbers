@@ -153,7 +153,7 @@ std::unique_ptr<CPUStorage<size> > CPUStorage<size>::Clone() const {
     return std::make_unique<CPUStorage<size> >(*this);
 }
 
-#include "impl/CPUStorageImpl.h"
+#include <storage/cpu-storage/impl/CPUStorageImpl.h>
 
 class CPUStorageProvider {
 public:
