@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 7. 5.
 //
 
-#ifndef IEEE754_QUERIES_INL
-#define IEEE754_QUERIES_INL
+#ifndef ARBITRARYFLOAT_IEEE754_QUERIES_INL
+#define ARBITRARYFLOAT_IEEE754_QUERIES_INL
 
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 bool ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::IsFinite() const {
@@ -36,4 +36,4 @@ template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requ
 int ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::Sign() const {
 }
 
-#endif //IEEE754_QUERIES_INL
+#endif //ARBITRARYFLOAT_IEEE754_QUERIES_INL

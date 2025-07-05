@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 7. 5.
 //
 
-#ifndef CONSTRUTORS_INL
-#define CONSTRUTORS_INL
+#ifndef ARBITRARYFLOAT_CONSTRUTORS_INL
+#define ARBITRARYFLOAT_CONSTRUTORS_INL
 
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::ArbitraryFloat(float value) {
@@ -45,4 +45,4 @@ ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::ArbitraryFloat(const
     throw std::runtime_error("ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::ArbitraryFloat(const ArbitraryUnsignedInt<BitSize, BitOffset, IntStorageProvider>& value) not implemented.");
 }
 
-#endif //CONSTRUTORS_INL
+#endif //ARBITRARYFLOAT_CONSTRUTORS_INL

@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 7. 5.
 //
 
-#ifndef CONVERSIONS_INL
-#define CONVERSIONS_INL
+#ifndef ARBITRARYFLOAT_CONVERSIONS_INL
+#define ARBITRARYFLOAT_CONVERSIONS_INL
 
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::operator float() const {
@@ -68,4 +68,4 @@ template<size_t BitSize, size_t BitOffset, typename UIntStorageProviderType> req
 ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::operator ArbitraryUnsignedInt<BitSize, BitOffset, UIntStorageProviderType>() const {
 }
 
-#endif //CONVERSIONS_INL
+#endif //ARBITRARYFLOAT_CONVERSIONS_INL
