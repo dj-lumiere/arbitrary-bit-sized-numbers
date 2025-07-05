@@ -4,6 +4,7 @@
 
 #ifndef ARBITRARYUNSIGNEDINT_STRINGIFY_INL
 #define ARBITRARYUNSIGNEDINT_STRINGIFY_INL
+#include <algorithm>
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToString(int base) const {
@@ -62,6 +63,8 @@ std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::ToHex
             nibble = 0;
         }
     }
+    std::ranges::reverse(result);
+    return result;
 }
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
