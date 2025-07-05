@@ -61,11 +61,11 @@ ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::operator ArbitraryFl
 }
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 template<size_t BitSize, size_t BitOffset, typename IntStorageProviderType> requires StorageProvider<IntStorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-ArbitrarySignedInt<BitSize, BitOffset, IntStorageProviderType> ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::ToInt() const {
+ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::operator ArbitrarySignedInt<BitSize, BitOffset, IntStorageProviderType>() const {
 }
 template<size_t ExpBits, size_t MantissaBits, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((ExpBits + MantissaBits + 1 + 7) >> 3)>
 template<size_t BitSize, size_t BitOffset, typename UIntStorageProviderType> requires StorageProvider<UIntStorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-ArbitraryUnsignedInt<BitSize, BitOffset, UIntStorageProviderType> ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::ToUInt() const {
+ArbitraryFloat<ExpBits, MantissaBits, StorageProviderType>::operator ArbitraryUnsignedInt<BitSize, BitOffset, UIntStorageProviderType>() const {
 }
 
 #endif //CONVERSIONS_INL

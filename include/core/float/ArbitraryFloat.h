@@ -188,10 +188,10 @@ public:
 
     // ===== CONVERSION TO INTEGER TYPES =====
     template<size_t BitSize, size_t BitOffset = 0, typename IntStorageProviderType = StorageProviderType> requires StorageProvider<IntStorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-    ArbitrarySignedInt<BitSize, BitOffset, IntStorageProviderType> ToInt() const;
+    explicit operator ArbitrarySignedInt<BitSize, BitOffset, IntStorageProviderType>() const;
 
     template<size_t BitSize, size_t BitOffset = 0, typename UIntStorageProviderType = StorageProviderType> requires StorageProvider<UIntStorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-    ArbitraryUnsignedInt<BitSize, BitOffset, UIntStorageProviderType> ToUInt() const;
+    explicit operator ArbitraryUnsignedInt<BitSize, BitOffset, UIntStorageProviderType>() const;
 
     // ===== ROUNDING FUNCTIONS AS MEMBER METHODS =====
     ArbitraryFloat Ceil() const;
