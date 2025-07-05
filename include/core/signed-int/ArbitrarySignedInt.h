@@ -47,7 +47,7 @@ public:
     ArbitrarySignedInt(T value);
 
     // Constructor from string (binary, hex, or decimal)
-    ArbitrarySignedInt(const char* str, int base = 10)
+    explicit ArbitrarySignedInt(const char* str, int base = 10)
         : ArbitrarySignedInt(std::string(str), base) // ← Correct delegating constructor
     {
         // Body can be empty
@@ -120,6 +120,7 @@ public:
     bool operator<=(const ArbitrarySignedInt& other) const;
     bool operator>(const ArbitrarySignedInt& other) const;
     bool operator>=(const ArbitrarySignedInt& other) const;
+    std::partial_ordering operator<=>(const ArbitrarySignedInt& other) const;
 
     // Increment/decrement
     ArbitrarySignedInt& operator++(); // prefix
@@ -312,5 +313,6 @@ template<typename StorageProvider>
 using Int256 = ArbitrarySignedInt<256, 0, StorageProvider>;
 
 #include <core/signed-int/impl/ArbitrarySignedIntImpl.h>
+
 
 #endif //ARBITRARYSIGNEDINT_H

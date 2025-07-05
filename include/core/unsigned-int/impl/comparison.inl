@@ -49,4 +49,15 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(c
     return !(*this < other);
 }
 
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
+std::partial_ordering ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitraryUnsignedInt& other) const {
+    if (*this < other) {
+        return std::partial_ordering::less;
+    }
+    if (*this > other) {
+        return std::partial_ordering::greater;
+    }
+    return std::partial_ordering::equivalent;
+}
+
 #endif //ARBITRARYUNSIGNEDINT_COMPARISON_INL

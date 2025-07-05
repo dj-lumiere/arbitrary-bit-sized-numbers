@@ -112,6 +112,7 @@ public:
     bool operator<=(const ArbitraryUnsignedInt& other) const;
     bool operator>(const ArbitraryUnsignedInt& other) const;
     bool operator>=(const ArbitraryUnsignedInt& other) const;
+    std::partial_ordering operator<=>(const ArbitraryUnsignedInt& other) const;
 
     // Increment/decrement
     ArbitraryUnsignedInt& operator++(); // prefix
