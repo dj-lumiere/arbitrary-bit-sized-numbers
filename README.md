@@ -67,15 +67,15 @@ using QuadFloat = ArbitraryFloat<15, 112, CPUMemoryPlace>;
 
 ## Architecture
 
-### Interface Hierarchy
+### Concept Hierarchy
 
-The library is built on a modular interface system:
+The library is built on a modular concept system:
 
-- **IByteAccessible**: Basic byte-level access
-- **IBitAccessible**: Bit-level manipulation
-- **IByteAnalyzable**: Byte pattern analysis
-- **IBitAnalyzable**: Bit counting and pattern detection
-- **IStorage**: Combined storage interface
+- **ByteAccessible**: Basic byte-level access
+- **BitAccessible**: Bit-level manipulation
+- **ByteAnalyzable**: Byte pattern analysis
+- **BitAnalyzable**: Bit counting and pattern detection
+- **Storage**: Combined storage interface
 
 ### Storage Backends
 
@@ -175,3 +175,4 @@ MIT License
 - [ ] Python bindings
 - [ ] Performance benchmarking suite
 - [ ] Extended mathematical function library
+- [ ] Make it into C++ module
