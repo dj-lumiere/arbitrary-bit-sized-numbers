@@ -24,9 +24,9 @@ set(CONCEPT_HEADERS
 
 # Core headers
 set(CORE_HEADERS
-        ${INCLUDE_DIR}/ArbitrarySignedInt.h
-        ${INCLUDE_DIR}/ArbitraryUnsignedInt.h
-        ${INCLUDE_DIR}/ArbitraryFloat.h
+        ${INCLUDE_DIR}/core/signed-int/ArbitrarySignedInt.h
+        ${INCLUDE_DIR}/core/unsigned-int/ArbitraryUnsignedInt.h
+        ${INCLUDE_DIR}/core/float/ArbitraryFloat.h
 )
 
 include_directories(include)
