@@ -50,14 +50,16 @@ bool ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(c
 }
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-std::partial_ordering ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitraryUnsignedInt& other) const {
-    if (*this < other) {
-        return std::partial_ordering::less;
+std::strong_ordering ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitraryUnsignedInt& other) const {
+    for (size_t i = BitSize; i > 0; --i) {
+        bool thisBit = GetBit(BitOffset + i - 1);
+        bool otherBit = other.GetBit(BitOffset + i - 1);
+
+        if (thisBit != otherBit) {
+            return thisBit <=> otherBit; // 0 < 1 is true
+        }
     }
-    if (*this > other) {
-        return std::partial_ordering::greater;
-    }
-    return std::partial_ordering::equivalent;
+    return std::strong_ordering::equal; // Equal numbers
 }
 
 #endif //ARBITRARYUNSIGNEDINT_COMPARISON_INL

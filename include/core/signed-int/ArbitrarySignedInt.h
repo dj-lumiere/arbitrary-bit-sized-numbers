@@ -120,7 +120,7 @@ public:
     bool operator<=(const ArbitrarySignedInt& other) const;
     bool operator>(const ArbitrarySignedInt& other) const;
     bool operator>=(const ArbitrarySignedInt& other) const;
-    std::partial_ordering operator<=>(const ArbitrarySignedInt& other) const;
+    std::strong_ordering operator<=>(const ArbitrarySignedInt& other) const;
 
     // Increment/decrement
     ArbitrarySignedInt& operator++(); // prefix

@@ -7,13 +7,16 @@
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator==(const ArbitrarySignedInt& other) const {
-    // TODO: Implement bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator==(const ArbitrarySignedInt& other)
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator==(const ArbitrarySignedInt& other) not implemented.");
+    for (size_t i = 0; i < BitSize; ++i) {
+        if (GetBit(BitOffset + i) != other.GetBit(BitOffset + i)) {
+            return false;
+        }
+    }
+    return true;
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator!=(const ArbitrarySignedInt& other) const {
-    // TODO: Implement bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator!=(const ArbitrarySignedInt& other)
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator!=(const ArbitrarySignedInt& other) not implemented.");
+    return !(*this == other);
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator<(const ArbitrarySignedInt& other) const {
@@ -36,7 +39,7 @@ bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(con
     throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-std::partial_ordering ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitrarySignedInt& other) const {
+std::strong_ordering ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitrarySignedInt& other) const {
     // TODO: Implement std::partial_ordering ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitrarySignedInt& other)
     throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator<=>(const ArbitrarySignedInt& other) not implemented.");
 }
