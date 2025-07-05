@@ -45,8 +45,10 @@ add_library(arbitrary_bitwidth_numbers INTERFACE ${CORE_HEADERS})
 
 # Create test executable
 add_executable(arbitrary_bitwidth_numbers_tests
-        test/signedinttest.cpp
-        test/UnsignedIntTest.cpp)
+        test/SignedIntTest.cpp
+        test/UnsignedIntTest.cpp
+        test/CPUStorageTest.cpp
+        test/UnsignedIntTestWithOffset.cpp)
 
 # Link the test executable with our library and Google Test
 target_link_libraries(arbitrary_bitwidth_numbers_tests
