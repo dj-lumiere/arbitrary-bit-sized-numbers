@@ -1,5 +1,7 @@
 # Arbitrary Bit Width Numbers
 
+## Warning: This library is in development stage!
+
 A C++ library providing backend-agnostic arbitrary-precision arithmetic types with customizable bit widths and storage backends.
 
 ## Features
