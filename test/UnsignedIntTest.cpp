@@ -67,7 +67,7 @@ TEST(ArbitraryUnsignedIntTest, Arithmetics) {
 
     UInt8 g(5), h(10);
     ASSERT_EQ((g - h).GetStorage()[0], 251); // 5 - 10 = -5, wraps to 251 (256 - 5)
-    
+
     UInt32 e2(0x1), f2(0xFFFFFF);
     std::array<uint8_t, 4> expected_e2 = { 2, 0, 0, 255 };
     ASSERT_EQ((e2 - f2).GetStorage().data_, expected_e2);
@@ -346,6 +346,14 @@ TEST(ArbitraryUnsignedIntTest, ComparisonOperators) {
     ASSERT_TRUE(b >= a);
     ASSERT_TRUE(a >= c);
     ASSERT_FALSE(a >= b);
+
+    // operator<=>
+    ASSERT_EQ(a<=> b, std::strong_ordering::less);
+    ASSERT_EQ(a<=> c, std::strong_ordering::equal);
+    ASSERT_EQ(b<=> a, std::strong_ordering::greater);
+    ASSERT_EQ(b<=> c, std::strong_ordering::greater);
+    ASSERT_EQ(c<=> a, std::strong_ordering::equal);
+    ASSERT_EQ(c<=> b, std::strong_ordering::less);
 
     // Test with different bit sizes (should be handled by conversion operators)
     using UInt16 = ArbitraryUnsignedInt<16, 0, CPUStorageProvider>;
