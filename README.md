@@ -80,7 +80,7 @@ The library is built on a modular concept system:
 ### Storage Backends
 
 Currently implemented:
-- **CPUStorage**: Optimized for CPU operations with SIMD support
+- **CPUStorage**: Optimized for CPU operations
 - Extensible to custom backends (GPU, network, persistent storage, etc.)
 
 ## Building
