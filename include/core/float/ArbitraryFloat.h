@@ -222,7 +222,7 @@ public:
     ArbitraryFloat Log2() const;
     ArbitraryFloat Log10() const;
     ArbitraryFloat Log1p() const;
-    ArbitraryFloat Logb(const ArbitraryFloat& y) const;
+    ArbitraryFloat Logb(const ArbitraryFloat& b) const;
 
     // ===== TRIGONOMETRIC FUNCTIONS =====
     ArbitraryFloat Sin() const;
