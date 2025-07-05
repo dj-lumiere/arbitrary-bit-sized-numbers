@@ -18,7 +18,7 @@
 #include <core/unsigned-int/impl/overflowing_ops.inl>
 #include <core/unsigned-int/impl/saturating_ops.inl>
 #include <core/unsigned-int/impl/static_properties.inl>
-#include <core/unsigned-int/impl/stringify.inl>
+#include <core/unsigned-int/impl/string_representation.inl>
 #include <core/unsigned-int/impl/unary_ops.inl>
 #include <core/unsigned-int/impl/utility_ops.inl>
 #include <core/unsigned-int/impl/wrapping_ops.inl>

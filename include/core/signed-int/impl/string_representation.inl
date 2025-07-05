@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 7. 5.
 //
 
-#ifndef ARBITRARYSIGNEDINT_STRINGIFY_INL
-#define ARBITRARYSIGNEDINT_STRINGIFY_INL
+#ifndef ARBITRARYSIGNEDINT_STRING_REPRESENTATION_INL
+#define ARBITRARYSIGNEDINT_STRING_REPRESENTATION_INL
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToString(int base) const {
@@ -63,4 +63,4 @@ std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepr
     throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() not implemented.");
 }
 
-#endif //ARBITRARYSIGNEDINT_STRINGIFY_INL
+#endif //ARBITRARYSIGNEDINT_STRING_REPRESENTATION_INL

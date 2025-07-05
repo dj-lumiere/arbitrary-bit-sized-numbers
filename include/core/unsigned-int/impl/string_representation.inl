@@ -2,8 +2,8 @@
 // Created by Lumi on 25. 7. 5.
 //
 
-#ifndef ARBITRARYUNSIGNEDINT_STRINGIFY_INL
-#define ARBITRARYUNSIGNEDINT_STRINGIFY_INL
+#ifndef ARBITRARYUNSIGNEDINT_STRING_REPRESENTATION_INL
+#define ARBITRARYUNSIGNEDINT_STRING_REPRESENTATION_INL
 #include <algorithm>
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
@@ -73,4 +73,4 @@ std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::BitRe
     throw std::runtime_error("std::string ArbitraryUnsignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() const not implemented.");
 }
 
-#endif //ARBITRARYUNSIGNEDINT_STRINGIFY_INL
+#endif //ARBITRARYUNSIGNEDINT_STRING_REPRESENTATION_INL
