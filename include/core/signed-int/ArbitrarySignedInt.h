@@ -12,9 +12,11 @@
 #include <iostream>
 #include <utility>
 
-#include "../include/concepts/StorageProvider.h"
-#include "ArbitraryUnsignedInt.h"
-#include "../cmake-build-release/_deps/googletest-src/googletest/include/gtest/internal/gtest-internal.h"
+#include "../../concepts/StorageProvider.h"
+
+// Forward declaration - don't include the header
+template<size_t BitSize, size_t BitOffset, typename StorageProviderType>
+class ArbitraryUnsignedInt;
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 /**
@@ -73,11 +75,11 @@ public:
     explicit operator unsigned long long() const;
 
     // Different size/offset conversions
-    template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProviderType>
+    template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProviderType> requires StorageProvider<NewStorageProviderType, ((NewBitSize + NewBitOffset + 7) >> 3)>
     explicit operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProviderType>() const;
 
     // Conversion to/from unsigned
-    template<size_t UBitSize, size_t UBitOffset, typename UStorageProviderType>
+    template<size_t UBitSize, size_t UBitOffset, typename UStorageProviderType> requires StorageProvider<UStorageProviderType, ((UBitSize + UBitOffset + 7) >> 3)>
     explicit operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProviderType>() const;
 
     // Arithmetic operators
@@ -420,17 +422,17 @@ ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator unsigned l
 }
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProvider>
-ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProvider>() const {
-    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProvider>() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProvider>() not implemented.");
+template<size_t NewBitSize, size_t NewBitOffset, typename NewStorageProviderType> requires StorageProvider<NewStorageProviderType, ((NewBitSize + NewBitOffset + 7) >> 3)>
+ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProviderType>() const {
+    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProviderType>() not implemented.");
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitrarySignedInt<NewBitSize, NewBitOffset, NewStorageProviderType>() not implemented.");
 }
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
-template<size_t UBitSize, size_t UBitOffset, typename UStorageProvider>
-ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProvider>() const {
-    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProvider>() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProvider>() not implemented.");
+template<size_t UBitSize, size_t UBitOffset, typename UStorageProviderType> requires StorageProvider<UStorageProviderType, ((UBitSize + UBitOffset + 7) >> 3)>
+ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProviderType>() const {
+    // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProviderType>() not implemented.");
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator ArbitraryUnsignedInt<UBitSize, UBitOffset, UStorageProviderType>() not implemented.");
 }
 
 // == ARITHMETIC OPERATIONS ==
@@ -513,17 +515,17 @@ ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& ArbitrarySignedInt<
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator*=(const ArbitrarySignedInt& other) {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator*=(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator*=(const ArbitrarySignedInt& other) not implemented.");   
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator*=(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator/=(const ArbitrarySignedInt& other) {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator/=(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator/=(const ArbitrarySignedInt& other) not implemented.");  
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator/=(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator%=(const ArbitrarySignedInt& other) {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator%=(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator%=(const ArbitrarySignedInt& other) not implemented.");  
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator%=(const ArbitrarySignedInt& other) not implemented.");
 }
 
 // == BITWISE OPERATIONS ==
@@ -629,7 +631,7 @@ bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>(cons
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitrarySignedInt& other) const {
     // TODO: Implement bool ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitrarySignedInt& other) not implemented.");  
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::operator>=(const ArbitrarySignedInt& other) not implemented.");
 }
 
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
@@ -727,7 +729,7 @@ std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToStrin
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() const {
     // TODO: Implement std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToBinaryString() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToHexString() const {
@@ -737,7 +739,7 @@ std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::ToHexSt
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() const {
     // TODO: Implement std::string ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::BitRepresentation() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::Max() {
@@ -755,13 +757,13 @@ template<size_t BitSize, size_t BitOffset, typename StorageProviderType> require
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> >
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitrarySignedInt& other) const {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > DivRem(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitrarySignedInt& other) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivRem(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> >
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivEuclid(const ArbitrarySignedInt& other) const {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > DivEuclid(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivEuclid(const ArbitrarySignedInt& other) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::DivEuclid(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::RemEuclid(const ArbitrarySignedInt& other) const {
@@ -806,7 +808,7 @@ std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > Arbi
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNeg() const {
     // TODO: Implement std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > CheckedNeg() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNeg() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNeg() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedAbs() const {
@@ -911,37 +913,37 @@ std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> Ove
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingMul(const ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& other) {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingMul(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingMul(const ArbitrarySignedInt& other) not implemented.");   
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingMul(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingDiv(const ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& other) {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingDiv(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingDiv(const ArbitrarySignedInt& other) not implemented.");  
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingDiv(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingRem(const ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& other) {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingRem(const ArbitrarySignedInt& other) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingRem(const ArbitrarySignedInt& other) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingRem(const ArbitrarySignedInt& other) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingNeg() {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingNeg() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingNeg() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingNeg() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingAbs() {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingAbs() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingAbs() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingAbs() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingPow(const ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>& exp) {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingPow(const ArbitrarySignedInt& exp) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingPow(const ArbitrarySignedInt& exp) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingPow(const ArbitrarySignedInt& exp) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingShl(size_t shift) {
     // TODO: Implement std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingShl(size_t shift) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShl(size_t shift) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::OverflowingShl(size_t shift) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::pair<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>, bool> OverflowingShr(size_t shift) {
@@ -997,22 +999,22 @@ template<size_t BitSize, size_t BitOffset, typename StorageProviderType> require
 template<typename T>
 std::optional<T> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() const {
     // TODO: Implement std::optional<T> TryInto() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() not implemented.");   
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::TryInto() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() const {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() not implemented.");  
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::NextPowerOfTwo() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() const {
     // TODO: Implement std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > CheckedNextPowerOfTwo() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedNextPowerOfTwo() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() const {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::PreviousPowerOfTwo() not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 std::optional<ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> > ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::CheckedPreviousPowerOfTwo() const {
@@ -1052,7 +1054,7 @@ ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<B
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType> ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) {
     // TODO: Implement ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
-    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented."); 
+    throw std::runtime_error("ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::FromNeBytes(const std::array<uint8_t, ((BitSize + BitOffset + 7) >> 3)>& bytes) not implemented.");
 }
 template<size_t BitSize, size_t BitOffset, typename StorageProviderType> requires StorageProvider<StorageProviderType, ((BitSize + BitOffset + 7) >> 3)>
 void ArbitrarySignedInt<BitSize, BitOffset, StorageProviderType>::Normalize() {
